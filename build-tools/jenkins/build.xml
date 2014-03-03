@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="bundle_wsclient" default="build" basedir="../../../">
+
+    <!-- ==================================================================  -->
+    <!-- Construction                                                        -->
+    <!-- ==================================================================  -->
+    <target name="build" depends="clean-up, init, parallelTasks, atoum, lint" />
+
+    <!-- =================================================================== -->
+    <!-- Nettoyage des éléments temporaires                                  -->
+    <!-- =================================================================== -->
+    <target name="clean-up"
+        description="Nettoyage des éléments temporaires et création des répertoires">
+
+        <!-- Suppression du répertoire temporaire -->
+        <delete dir="${basedir}/build/coverage"/>
+        <delete dir="${basedir}/build/logs"/>
+        <delete dir="${basedir}/build/pdepend"/>
+
+        <!-- Création des répertoires de construction -->
+        <mkdir dir="${basedir}/build/coverage"/>
+        <mkdir dir="${basedir}/build/logs"/>
+        <mkdir dir="${basedir}/build/pdepend"/>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Initialisation du projet                                            -->
+    <!-- =================================================================== -->
+    <target name="init" description="Initialisation du projet">
+
+        <!-- Installation de Composer -->
+        <mkdir dir="${basedir}/sources/bin"/>
+        <exec executable="bash" dir="${basedir}/sources" failonerror="true">
+            <arg value="-c"/>
+            <arg value="curl -s http://getcomposer.org/installer | php -- --install-dir=${basedir}/sources/bin" />
+        </exec>
+
+        <!-- Téléchargement des dépendances -->
+        <exec executable="php" dir="${basedir}/sources" failonerror="true">
+            <arg line="${basedir}/sources/bin/composer.phar --no-interaction update --dev" />
+        </exec>
+
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Lancement en parallèle des cibles pdepend, phpmd, phpcpd, phpcs,    -->
+    <!-- phpdoc et sloccount                                                 -->
+    <!-- =================================================================== -->
+    <target name="parallelTasks"
+        description="Lancement en parallèle des cibles pdepend, phpmd, phpcpd, phpcs, phploc et sloccount">
+
+        <parallel threadCount="2">
+            <sequential>
+                <antcall target="pdepend"/>
+                <antcall target="phpmd"/>
+            </sequential>
+            <antcall target="phpcpd"/>
+            <antcall target="phpcs"/>
+            <antcall target="phploc"/>
+            <antcall target="sloccount" />
+        </parallel>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Vérification de la syntaxe des fichiers PHP                         -->
+    <!-- =================================================================== -->
+    <target name="lint">
+        <apply executable="php" failonerror="true">
+            <arg value="-l" />
+
+            <fileset dir="${basedir}/sources" followsymlinks="false">
+                <include name="src/**/*.php" />
+                <modified />
+            </fileset>
+        </apply>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Génération du fichier jdepend.xml et de graphiques avec PHP_Depend  -->
+    <!-- =================================================================== -->
+    <target name="pdepend"
+        description="Génération du fichier jdepend.xml et de graphiques avec PHP_Depend">
+
+        <exec executable="pdepend">
+            <arg line="--jdepend-xml=${basedir}/build/logs/jdepend.xml
+                       ${basedir}/sources/src" />
+        </exec>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Génération du fichier pmd.xml par phpmd                             -->
+    <!-- =================================================================== -->
+    <target name="phpmd"
+        description="Génération du fichier pmd.xml par phpmd">
+
+        <exec executable="phpmd">
+            <arg line="${basedir}/sources/src
+                       xml codesize,unusedcode
+                       --reportfile ${basedir}/build/logs/pmd.xml" />
+        </exec>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Génération du fichier pmd-cpd.xml par phpcpd                        -->
+    <!-- =================================================================== -->
+    <target name="phpcpd"
+        description="Génération du fichier pmd-cpd.xml par phpcpd">
+
+        <exec executable="phpcpd">
+            <arg line="--log-pmd ${basedir}/build/logs/pmd-cpd.xml
+                       ${basedir}/sources/src" />
+        </exec>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Génération du fichier phploc.csv par phploc                        -->
+    <!-- =================================================================== -->
+    <target name="phploc"
+             description="Génération du fichier phploc.csv par phploc">
+
+        <exec executable="phploc">
+            <arg line="--log-csv ${basedir}/build/logs/phploc.csv
+                       ${basedir}/sources/src" />
+        </exec>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Génération du fichier checkstyle.xml par PHP_CodeSniffer            -->
+    <!-- =================================================================== -->
+    <target name="phpcs"
+         description="Génération du fichier checkstyle.xml par PHP_CodeSniffer">
+
+        <exec executable="phpcs" output="/dev/null">
+            <arg line="--report-checkstyle=${basedir}/build/logs/checkstyle.xml
+                       --report-gitblame=${basedir}/build/logs/gitblame.txt
+                       --report-source=${basedir}/build/logs/source.txt
+                       --standard=Symfony2
+                       --extensions=php
+                       -s
+                       ${basedir}/sources/src" />
+        </exec>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Génération du fichier sloccount.sc par SLOCCount                    -->
+    <!-- =================================================================== -->
+    <target name="sloccount"
+        description="Génération du fichier sloccount.sc par SLOCCount">
+
+        <exec executable="sloccount" outputproperty="${basedir}/build/logs/sloccount.sc">
+            <arg line="--duplicates
+                       --wide
+                       --details
+                       ${basedir}/sources/src
+                       " />
+        </exec>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Génération du fichier junit.xml / Atoum                             -->
+    <!-- =================================================================== -->
+    <target name="atoum" description="Run unit tests with atoum - html coverage">
+      <exec executable="${basedir}/sources/vendor/bin/atoum" failonerror="false">
+        <arg line="-c ${basedir}/sources/build-tools/jenkins/atoum.ci.php" />
+        <arg line="-d ${basedir}/sources/src/M6/Bundle/WSClientBundle/TestsAtoum/" />
+      </exec>
+    </target>
+
+
+
+</project>

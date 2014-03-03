@@ -1,0 +1,16 @@
+services:
+
+    m6_ws_client.factory:
+        class: M6Web\Bundle\WSClientBundle\Factory\WSClientFactory
+
+    m6.ws.client.listener:
+        class: M6Web\Bundle\WSClientBundle\Listener\WSClientListener
+        arguments: [ @event_dispatcher ]
+        tags:
+            - { name: kernel.event_listener, event: request.complete, method: onRequestComplete }
+
+    m6.data_collector.wsclient:
+        class: M6Web\Bundle\WSClientBundle\DataCollector\WSClientDataCollector
+        tags:
+            - { name: data_collector, template: 'M6WebWSClientBundle:Collector:wsclient', id: 'wsclient' }
+            - { name: kernel.event_listener, event: wsclient.command, method: onWSClientCommand }

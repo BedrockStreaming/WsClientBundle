@@ -1,0 +1,26 @@
+{
+    "name": "m6web/wsclient-bundle",
+    "type": "symfony-bundle",
+    "description" : "Simple webservices client to call external urls",
+    "authors": [
+        {
+            "name": "Florent DUBOST"
+        },
+        {
+            "name": "Olivier Mansour"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "": "src/" }
+    },
+    "minimum-stability" : "dev",
+    "require-dev": {
+        "atoum/atoum": "master-dev",
+        "atoum/atoum-bundle": "master-dev",
+        "guzzle/guzzle" : "@stable"
+    },
+    "suggest": {
+        "guzzle/guzzle" : "@stable",
+        "m6web/redis-bundle": "@stable"
+    }
+}
