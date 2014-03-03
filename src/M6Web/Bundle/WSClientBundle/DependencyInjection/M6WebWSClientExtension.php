@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\Definition;
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
-class M6WSClientExtension extends Extension
+class M6WebWSClientExtension extends Extension
 {
     /**
      * {@inheritDoc}
