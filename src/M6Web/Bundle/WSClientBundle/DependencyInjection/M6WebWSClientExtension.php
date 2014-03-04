@@ -87,6 +87,6 @@ class M6WebWSClientExtension extends Extension
      */
     public function getAlias()
     {
-        return 'm6web_ws_client';
+        return 'm6_ws_client';
     }
 }
