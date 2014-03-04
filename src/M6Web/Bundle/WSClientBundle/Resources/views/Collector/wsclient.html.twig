@@ -50,7 +50,7 @@
                 <td>{{ type }}</td>
                 <td>{% if command.cache %}true{% else %}false{%endif%}</td>
                 {% set url = command.url %}
-                <td><span title="{{ url }}">{{ url|truncate(100) }}</span></td>
+                <td><span title="{{ url }}">{{ url }}</span></td>
                 {% set time = command.executiontime %}
                 <td>{{ time }}</td>
                 <td>{{ command.statusCode }}</td>
