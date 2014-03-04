@@ -5,12 +5,13 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use M6Web\Bundle\WSClientBundle\EventDispatcher as WSEventDispatcher;
+
 /**
  * Handle datacollector for Wsclient
  */
 class WSClientDataCollector extends DataCollector
 {
-    private $data;
+    protected $data;
 
     /**
      * Construct the data collector
