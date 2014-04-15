@@ -120,7 +120,7 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         }
 
         $adapter = new $cacheAdapterClass($cacheService, $ttl);
-        $cache = new $cachePluginClass(array('adapter' => $adapter, 'default_ttl' => $ttl));
+        $cache = new $cachePluginClass($adapter);
         $this->client->addSubscriber($cache);
 
         return $this;
