@@ -17,7 +17,7 @@ interface ClientAdapterInterface
      *
      * @param array $config Configuration du client
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setConfig(array $config);
 
@@ -26,7 +26,7 @@ interface ClientAdapterInterface
      *
      * @param string $url Url de base
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setBaseUrl($url);
 
@@ -37,7 +37,7 @@ interface ClientAdapterInterface
      * @param mixed  $cacheService      Service de cache
      * @param string $cacheAdapterClass Classe adapter entre le service de cache et et le client
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setCache($ttl, CacheInterface $cacheService = null, $cacheAdapterClass = '');
 
@@ -46,7 +46,7 @@ interface ClientAdapterInterface
      *
      * @param CacheResetterInterface $cacheResetter Service de purge du cache
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     //public function setCacheResetter(CacheResetterInterface $cacheResetter);
 
@@ -55,7 +55,7 @@ interface ClientAdapterInterface
      *
      * @param string $param Paramètre
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setCacheQueryParam($param);
 
@@ -71,7 +71,7 @@ interface ClientAdapterInterface
      *
      * @param EventDispatcher $eventDispatcher Dispatcheur d'évènement
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setEventDispatcher(EventDispatcher $eventDispatcher);
 
@@ -80,7 +80,7 @@ interface ClientAdapterInterface
      *
      * @param Stopwatch $stopwatch Stopwatcher
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setStopWatch(Stopwatch $stopwatch);
 
@@ -104,4 +104,14 @@ interface ClientAdapterInterface
      * @return Request
      */
     public function post($uri, $headers = null, $body = null);
+
+    /**
+     * Définit le TTL pour toutes les requêtes.
+     * Surcharge le ttl calculé automatiquement si non null
+     *
+     * @param null|int $ttl Time To Live
+     *
+     * @return ClientAdapterInterface
+     */
+    public function setRequestTtl($ttl);
 }
