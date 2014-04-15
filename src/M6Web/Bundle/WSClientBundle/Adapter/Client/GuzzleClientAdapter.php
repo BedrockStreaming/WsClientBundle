@@ -237,7 +237,6 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     public function setRequestTtl($ttl)
     {
-        var_dump($ttl); exit;
         $this->requestTtl = $ttl;
 
         return $this;
