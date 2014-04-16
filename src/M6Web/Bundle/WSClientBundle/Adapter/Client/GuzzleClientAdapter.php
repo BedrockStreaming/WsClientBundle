@@ -6,7 +6,6 @@ use Guzzle\Http\ClientInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Stopwatch\Stopwatch;
 use M6Web\Bundle\WSClientBundle\Cache\CacheInterface;
-use M6Web\Bundle\WSClientBundle\Cache\CacheResetterInterface;
 use M6Web\Bundle\WSClientBundle\Adapter\Request\GuzzleRequestAdapter;
 
 /**
@@ -24,10 +23,6 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     protected $eventDispatcher;
 
-    /**
-     * @var CacheResetterInterface
-     */
-    //protected $cacheResetter;
 
     /**
      * @var CacheInterface
@@ -112,11 +107,11 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         $this->cache = $cacheService;
 
         if (!class_exists($cacheAdapterClass)) {
-            throw new \Exception('La classe cache adpater "' . $cacheAdapterClass . '" n\'est pas implémenté.');
+            throw new \Exception('Class "' . $cacheAdapterClass . '" don\'t exist.');
         }
 
         if (!class_exists($cachePluginClass)) {
-            throw new \Exception('La classe cache plugin "' . $cachePluginClass . '" n\'est pas implémenté.');
+            throw new \Exception('Class "' . $cachePluginClass . '"  don\'t exist.');
         }
 
         $adapter = new $cacheAdapterClass($cacheService, $ttl);
@@ -126,15 +121,6 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-//    public function setCacheResetter(CacheResetterInterface $cacheResetter)
-//    {
-//        $this->cacheResetter = $cacheResetter;
-//
-//        return $this;
-//    }
 
     /**
      * {@inheritdoc}
