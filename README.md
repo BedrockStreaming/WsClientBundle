@@ -52,3 +52,10 @@ $response = $request->send();
 
 echo $response->getBody();
 ```
+
+## unit test
+
+```shell
+composer install --dev
+./vendor/bin/atoum
+```
