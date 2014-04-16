@@ -114,4 +114,16 @@ interface ClientAdapterInterface
      * @return ClientAdapterInterface
      */
     public function setRequestTtl($ttl);
+
+    /**
+     * Créé une requête
+     *
+     * @param string $method
+     * @param string $uri
+     * @param array  $headers
+     * @param string $body
+     *
+     * @return RequestAdapterInterface
+     */
+    public function createRequest($method = 'GET', $uri = null, $headers = null, $body = null);
 }

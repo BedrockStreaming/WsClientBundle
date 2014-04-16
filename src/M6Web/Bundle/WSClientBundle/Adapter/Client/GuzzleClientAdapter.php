@@ -171,7 +171,9 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         $this->stopwatch = $stopwatch;
     }
 
-
+    /**
+     * {@inheritdoc}
+     */
     public function createRequest($method = 'GET', $uri = null, $headers = null, $body = null)
     {
         if ($this->stopwatch) {
