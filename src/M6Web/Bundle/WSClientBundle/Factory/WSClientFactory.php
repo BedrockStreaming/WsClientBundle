@@ -14,10 +14,10 @@ class WSClientFactory
 
     /**
      * Factory to get a ws client
-     * @param ContainerInterface $container Container
-     * @param string $baseUrl Base url
-     * @param array $config Client configuration
-     * @param string $clientAdapterClass Client adpater class - Default is Guzzle
+     * @param ContainerInterface $container          Container
+     * @param string             $baseUrl            Base url
+     * @param array              $config             Client configuration
+     * @param string             $clientAdapterClass Client adpater class - Default is Guzzle
      *
      * @throws \Exception
      * @return M6Web\Bundle\WSClientBundle\Adapter\Client\ClientAdapterInterface
