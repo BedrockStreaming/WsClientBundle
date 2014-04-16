@@ -44,6 +44,11 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     protected $requestTtl;
 
     /**
+     * @var boolean
+     */
+    protected $throwExceptionOnHttpError;
+
+    /**
      * Construit un client
      *
      * @param ClientInterface $guzzleClient Client Guzzle à adapter
@@ -52,8 +57,8 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     public function __construct(ClientInterface $guzzleClient)
     {
-        $this->client = $guzzleClient;
-        return $this;
+        $this->client                    = $guzzleClient;
+        $this->throwExceptionOnHttpError = false;
     }
 
     /**
@@ -167,7 +172,8 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         }
 
         $options = array(
-            'query' => $this->getCacheQuery()
+            'query' => $this->getCacheQuery(),
+            'exceptions' => $this->throwExceptionOnHttpError
         );
 
         $guzzleRequest = $this
@@ -224,6 +230,16 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     public function setRequestTtl($ttl)
     {
         $this->requestTtl = $ttl;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function throwExceptionOnHttpError($throw)
+    {
+        $this->throwExceptionOnHttpError = $throw;
 
         return $this;
     }
