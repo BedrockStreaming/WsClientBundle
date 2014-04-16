@@ -26,7 +26,6 @@ class Configuration implements ConfigurationInterface
             ->prototype('array')
                 ->children()
                     ->scalarNode('base_url')->end()
-                    ->booleanNode('exceptions')->defaultValue(false)->end()
                     ->variableNode('config')
                         ->validate()
                             ->ifTrue(function($v){

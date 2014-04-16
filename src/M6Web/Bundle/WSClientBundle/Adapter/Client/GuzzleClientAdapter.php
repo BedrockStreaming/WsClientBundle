@@ -94,6 +94,10 @@ class GuzzleClientAdapter implements ClientAdapterInterface
 
         $this->client->setConfig(array('curl.options' => $curlConfig));
 
+        if (array_key_exists('exceptions', $config)) {
+            $this->throwExceptionOnHttpError = (bool) $config['exceptions'];
+        }
+
         return $this;
     }
 
@@ -210,6 +214,7 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     {
         return $this->createRequest('POST', $uri, $headers, $body);
     }
+
     /**
      * Gets the query for cache clearing of the request if necessary
      *
@@ -230,16 +235,6 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     public function setRequestTtl($ttl)
     {
         $this->requestTtl = $ttl;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function throwExceptionOnHttpError($throw)
-    {
-        $this->throwExceptionOnHttpError = $throw;
 
         return $this;
     }

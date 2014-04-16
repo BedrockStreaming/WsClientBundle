@@ -117,13 +117,4 @@ interface ClientAdapterInterface
      * @return RequestAdapterInterface
      */
     public function createRequest($method = 'GET', $uri = null, $headers = null, $body = null);
-
-    /**
-     * Defin if an exception must be throwed on HTTP error
-     *
-     * @param boolean $throw
-     *
-     * @return RequestAdapterInterface
-     */
-    public function throwExceptionOnHttpError($throw);
 }
