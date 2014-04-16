@@ -1,7 +1,7 @@
 <?php
 namespace M6Web\Bundle\WSClientBundle\test\units\Adapter\Client;
 
-require_once __DIR__.'/../../../../../../../vendor/autoload.php';
+require_once __DIR__.'/../../../../../../../../../../../vendor/autoload.php';
 require_once 'FakeGuzzleClient.php';
 
 use mageekguy\atoum\test;
@@ -35,8 +35,8 @@ class GuzzleClientAdapter extends test
 
         $wsClient = new \mock\M6Web\Bundle\WSClientBundle\test\units\Adapter\Client\FakeGuzzleClient();
 
-        $wsClient->getMockController()->post = $wsClient->getMockController()->get = function($url) use ($wsResponse) {
-                $wsRequest = new \mock\Guzzle\Http\Message\Request('GET', $url);
+        $wsClient->getMockController()->createRequest = function($method, $uri) use ($wsResponse) {
+                $wsRequest = new \mock\Guzzle\Http\Message\Request($method, $uri);
                 $wsRequest->getMockController()->send = function() use ($wsResponse) {
                 return $wsResponse;
             };
@@ -134,73 +134,6 @@ class GuzzleClientAdapter extends test
     }
 
     /**
-     * Teste la méthode get avec cache resetter
-     *
-     * @return void
-     */
-    public function testGetWithResetter()
-    {
-        $guzzleClient = $this->buildMockWsClient(200, 'cache resetter');
-
-        $cacheResetter = new \mock\M6\Component\CacheExtra\Resetter\CacheResetterInterface();
-
-        $client = new BaseGuzzleClientAdapter($guzzleClient);
-        $client
-            ->setCacheResetter($cacheResetter)
-            ->setCacheQueryParam('reset');
-
-        // Sans demande de purge
-        $cacheResetter->getMockController()->shouldResetCache = function () {
-            return false;
-        };
-
-        $request = $client->get('http://www.google.com');
-        $response = $request->send();
-
-        $this
-            ->variable($response->getBody())
-                ->isIdenticalTo('cache resetter');
-
-        $this
-            ->variable($response->getStatusCode())
-                ->isIdenticalTo(200);
-
-        $this
-            ->mock($cacheResetter)
-                ->call('shouldResetCache')
-                    ->once()
-            ->mock($guzzleClient)
-                ->call('get')
-                    ->withIdenticalArguments('http://www.google.com', null, array('query' => array()))
-                        ->once();
-
-        // Avec purge
-        $cacheResetter->getMockController()->shouldResetCache = function () {
-            return true;
-        };
-
-        $request = $client->get('http://www.google.com');
-        $response = $request->send();
-
-        $this
-            ->variable($response->getBody())
-                ->isIdenticalTo('cache resetter');
-
-        $this
-            ->variable($response->getStatusCode())
-                ->isIdenticalTo(200);
-
-        $this
-            ->mock($cacheResetter)
-                ->call('shouldResetCache')
-                    ->twice()
-            ->mock($guzzleClient)
-                ->call('get')
-                    ->withIdenticalArguments('http://www.google.com', null, array('query' => array('reset' => 1)))
-                        ->once();
-    }
-
-    /**
      * Test la méthode post
      *
      * @return void
@@ -229,8 +162,7 @@ class GuzzleClientAdapter extends test
      */
     public function testCache()
     {
-        $cacheResetter = new \mock\M6\Component\CacheExtra\Resetter\CacheResetterInterface();
-        $cacheService = new \mock\M6\Component\CacheExtra\CacheInterface();
+        $cacheService = new \mock\M6Web\Bundle\WSClientBundle\Cache\CacheInterface();
         $guzzleClient = $this->buildMockWsClient();
 
         $client = new BaseGuzzleClientAdapter($guzzleClient);
@@ -239,15 +171,6 @@ class GuzzleClientAdapter extends test
         $this
             ->variable($client->shouldResetCache())
                 ->isIdenticalTo(null);
-
-        // Avec cache resetter
-        $client->setCacheResetter($cacheResetter);
-        $client->shouldResetCache();
-
-        $this
-            ->mock($cacheResetter)
-                ->call('shouldResetCache')
-                        ->once();
 
         // On vérifie les exceptions dans le cas de classe inexistante
         $this
@@ -279,21 +202,15 @@ class GuzzleClientAdapter extends test
         $guzzleClient = new Client('https://api.github.com');
         $client = new BaseGuzzleClientAdapter($guzzleClient);
 
-        $cacheResetter = new \mock\M6\Component\CacheExtra\Resetter\CacheResetterInterface();
-
-        // Avec purge
-        $cacheResetter->getMockController()->shouldResetCache = function () {
-            return true;
-        };
-        $client->setCacheResetter($cacheResetter)->setCacheQueryParam('raoul');
         $response = $client->get('http://www.google.fr')->send();
         $this->assert
             ->string($response->getInfo("url"))
-            ->isIdenticalTo("http://www.google.fr?raoul=1");
+            ->isIdenticalTo("http://www.google.fr");
+
         $response = $client->get('http://www.google.fr?coucou=1')->send();
         $this->assert
             ->string($response->getInfo("url"))
-            ->isIdenticalTo("http://www.google.fr?raoul=1&coucou=1");
+            ->isIdenticalTo("http://www.google.fr?coucou=1");
 
     }
 

@@ -2,8 +2,6 @@
 
 namespace M6Web\Bundle\WSClientBundle\test\units\Adapter\Client;
 
-require_once __DIR__.'/../../../../../../../vendor/autoload.php';
-
 use Guzzle\Http\Message\RequestFactoryInterface;
 use Guzzle\Parser\UriTemplate\UriTemplateInterface;
 use Guzzle\Http\Curl\CurlMultiInterface;
