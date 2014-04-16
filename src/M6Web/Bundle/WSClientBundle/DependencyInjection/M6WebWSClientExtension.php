@@ -64,6 +64,10 @@ class M6WebWSClientExtension extends Extension
                 array_key_exists('adapter', $config['cache']) ? $config['cache']['adapter'] : ''
             ));
 
+            if ($config['cache']['force_request_ttl']) {
+                $definition->addMethodCall('setRequestTtl', array($config['cache']['ttl']));
+            }
+
             if (array_key_exists('resetter', $config['cache'])) {
                 if (array_key_exists('service', $config['cache']['resetter'])) {
                     $definition->addMethodCall('setCacheResetter', array(new Reference($config['cache']['resetter']['service'])));

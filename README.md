@@ -12,8 +12,13 @@ The main configuration key is `m6_ws_client`. Each subkey defines an instance of
 
   * `base_url` : the base domain of each url called with the service. If an absolute url is passed to the client, the base url is ignored.
   * `config` (optional) : additional parameters to configure the client, must be an array. With Guzzle, you can define a timeout (1s by default).
+    * `timeout` : Request timeout, 1 (second) by default (int)
+    * `followlocation` : Follow _location_ header (boolean)
+    * `maxredirs` : Max redirections (int)
+    * `exceptions` : Throw exceptions on http errors (boolean)
   * `cache` (optional) :
     * `ttl` : 86400s by default
+    * `force_request_ttl` (optional) : FALSE by default. If TRUE, request TTL is the same than the cache TTL, otherwise the request TTL is calculated according to response headers.
     * `adpater` : (M6\Bundle\FrontBundle\Common\Cache\RedisCacheAdapter for example)
     * `service` : (m6_redis for example)
     * `resetter` (optional) :
@@ -46,4 +51,11 @@ $request = $wsclient->get('http://ws-usine.m6web.fr/parse/?content=my_content');
 $response = $request->send();
 
 echo $response->getBody();
+```
+
+## unit test
+
+```shell
+composer install --dev
+./vendor/bin/atoum
 ```

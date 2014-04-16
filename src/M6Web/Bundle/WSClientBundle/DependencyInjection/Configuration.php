@@ -38,6 +38,7 @@ class Configuration implements ConfigurationInterface
                     ->arrayNode('cache')
                         ->children()
                             ->scalarNode('ttl')->defaultValue(86400)->end()
+                            ->booleanNode('force_request_ttl')->defaultValue(false)->end()
                             ->scalarNode('service')->end()
                             ->scalarNode('adapter')->end()
                             ->arrayNode('resetter')

@@ -8,100 +8,113 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 /**
- * Interface pour un client de webservices
+ * Client interface
  */
 interface ClientAdapterInterface
 {
     /**
-     * Définit la configuration du client
+     * Define client configuration
      *
-     * @param array $config Configuration du client
+     * @param array $config Client configuration
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setConfig(array $config);
 
     /**
-     * Définit l'url de base pour le client
+     * Define client base URL
      *
-     * @param string $url Url de base
+     * @param string $url Base URL
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setBaseUrl($url);
 
     /**
-     * Définit le cache du client
+     * Define client cache
      *
-     * @param int    $ttl               Expiration du cache
-     * @param mixed  $cacheService      Service de cache
-     * @param string $cacheAdapterClass Classe adapter entre le service de cache et et le client
+     * @param int    $ttl               Cache expiration time
+     * @param mixed  $cacheService      Cache service
+     * @param string $cacheAdapterClass Class adapter between cache service and client
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setCache($ttl, CacheInterface $cacheService = null, $cacheAdapterClass = '');
 
     /**
-     * Définit le service de purge du cache
+     * Define the query parameter to add to clear cache
      *
-     * @param CacheResetterInterface $cacheResetter Service de purge du cache
+     * @param string $param Parameter
      *
-     * @return GuzzleClientAdapter
-     */
-    //public function setCacheResetter(CacheResetterInterface $cacheResetter);
-
-    /**
-     * Définit le paramètre à ajouter à l'url de la requête pour vider le cache
-     *
-     * @param string $param Paramètre
-     *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setCacheQueryParam($param);
 
     /**
-     * Permet de savoir si le client doit purger le cache
+     * Return TRUE if client has to clear the cache
      *
      * @return boolean
      */
     public function shouldResetCache();
 
     /**
-     * Définit le dispatcheur d'évènement
+     * Define event dispatcher
      *
-     * @param EventDispatcher $eventDispatcher Dispatcheur d'évènement
+     * @param EventDispatcher $eventDispatcher dispatcher
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setEventDispatcher(EventDispatcher $eventDispatcher);
 
     /**
-     * Définit le stopwatcher (timeline de la debug toolbar)
+     * Define stopwatcher (debug toolbar timeline)
      *
      * @param Stopwatch $stopwatch Stopwatcher
      *
-     * @return GuzzleClientAdapter
+     * @return ClientAdapterInterface
      */
     public function setStopWatch(Stopwatch $stopwatch);
 
     /**
-     * Lance une requête de type GET
+     * Crete GET request
      *
-     * @param mixed $uri     Uri de la requete
-     * @param array $headers Header de la requete
+     * @param mixed $uri     Uri
+     * @param array $headers Headers
      *
      * @return Request
      */
     public function get($uri, $headers = null);
 
     /**
-     * Lance une requête de type POST
+     * Create POST request
      *
-     * @param string $uri     Uri de la requete
-     * @param array  $headers Header de la requete
-     * @param string $body    Body de la requete
+     * @param string $uri     Uri
+     * @param array  $headers Headers
+     * @param string $body    Body
      *
      * @return Request
      */
     public function post($uri, $headers = null, $body = null);
+
+    /**
+     * Define the TTL of all request.
+     * Override the calculated request TTL if not null.
+     *
+     * @param null|int $ttl Time To Live
+     *
+     * @return ClientAdapterInterface
+     */
+    public function setRequestTtl($ttl);
+
+    /**
+     * Create a request
+     *
+     * @param string $method
+     * @param string $uri
+     * @param array  $headers
+     * @param string $body
+     *
+     * @return RequestAdapterInterface
+     */
+    public function createRequest($method = 'GET', $uri = null, $headers = null, $body = null);
 }

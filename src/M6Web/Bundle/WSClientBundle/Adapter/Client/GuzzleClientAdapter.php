@@ -23,7 +23,6 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     protected $eventDispatcher;
 
-
     /**
      * @var CacheInterface
      */
@@ -40,6 +39,16 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     protected $stopwatch = null;
 
     /**
+     * @var integer
+     */
+    protected $requestTtl;
+
+    /**
+     * @var boolean
+     */
+    protected $throwExceptionOnHttpError;
+
+    /**
      * Construit un client
      *
      * @param ClientInterface $guzzleClient Client Guzzle à adapter
@@ -48,9 +57,8 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     public function __construct(ClientInterface $guzzleClient)
     {
-        $this->client = $guzzleClient;
-        //$this->cacheResetter = null;
-        return $this;
+        $this->client                    = $guzzleClient;
+        $this->throwExceptionOnHttpError = false;
     }
 
     /**
@@ -85,6 +93,10 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         }
 
         $this->client->setConfig(array('curl.options' => $curlConfig));
+
+        if (array_key_exists('exceptions', $config)) {
+            $this->throwExceptionOnHttpError = (bool) $config['exceptions'];
+        }
 
         return $this;
     }
@@ -155,18 +167,33 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function get($uri, $headers = null)
+    public function createRequest($method = 'GET', $uri = null, $headers = null, $body = null)
     {
         if ($this->stopwatch) {
-            $this->stopwatch->start('WSClientBundle::get');
+            $this->stopwatch->start(
+                sprintf('WSClientBundle::%s', strtolower($method))
+            );
         }
 
-        $guzzleRequest = $this->client->get($uri, $headers, array(
-            'query' => $this->getCacheQuery()
-        ));
+        $options = array(
+            'query' => $this->getCacheQuery(),
+            'exceptions' => $this->throwExceptionOnHttpError
+        );
+
+        $guzzleRequest = $this
+            ->client
+            ->createRequest($method, $uri, $headers, $body, $options);
+
+        if (!is_null($this->requestTtl)) {
+            $guzzleRequest
+                ->getParams()
+                ->set('cache.override_ttl', $this->requestTtl);
+        }
 
         if ($this->stopwatch) {
-            $this->stopwatch->stop('WSClientBundle::get');
+            $this->stopwatch->stop(
+                sprintf('WSClientBundle::%s', strtolower($method))
+            );
         }
 
         return new GuzzleRequestAdapter($guzzleRequest);
@@ -175,21 +202,17 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function get($uri, $headers = null)
+    {
+        return $this->createRequest('GET', $uri, $headers);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function post($uri, $headers = null, $body = null)
     {
-        if ($this->stopwatch) {
-            $this->stopwatch->start('WSClientBundle::post');
-        }
-
-        $guzzleRequest = $this->client->post($uri, $headers, $body, array(
-            'query' => $this->getCacheQuery()
-        ));
-
-        if ($this->stopwatch) {
-            $this->stopwatch->stop('WSClientBundle::post');
-        }
-
-        return new GuzzleRequestAdapter($guzzleRequest);
+        return $this->createRequest('POST', $uri, $headers, $body);
     }
 
     /**
@@ -204,5 +227,15 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         }
 
         return array();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setRequestTtl($ttl)
+    {
+        $this->requestTtl = $ttl;
+
+        return $this;
     }
 }
