@@ -23,7 +23,6 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     protected $eventDispatcher;
 
-
     /**
      * @var CacheInterface
      */
@@ -54,7 +53,6 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     public function __construct(ClientInterface $guzzleClient)
     {
         $this->client = $guzzleClient;
-        //$this->cacheResetter = null;
         return $this;
     }
 
