@@ -1,7 +1,7 @@
 <?php
 namespace M6Web\Bundle\WSClientBundle\test\units\Adapter\Client;
 
-require_once __DIR__.'/../../../../../../../../../../../vendor/autoload.php';
+require_once __DIR__.'/../../../../../../../../vendor/autoload.php';
 require_once 'FakeGuzzleClient.php';
 
 use mageekguy\atoum\test;
