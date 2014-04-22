@@ -58,15 +58,22 @@ class M6WebWSClientExtension extends Extension
         $definition->addMethodCall('setStopWatch', array(new Reference('debug.stopwatch', ContainerInterface::NULL_ON_INVALID_REFERENCE)));
 
         if (array_key_exists('cache', $config)) {
+
+            $cacheClass = '\Guzzle\Plugin\Cache\CachePlugin';
+
+            if ($config['cache']['force_request_ttl'])
+            {
+                $definition->addMethodCall('setRequestTtl', array($config['cache']['ttl']));
+                $cacheClass = '\M6Web\Bundle\WSClientBundle\Cache\Guzzle\ForcedCachePlugin';
+            }
+
             $definition->addMethodCall('setCache', array(
                 $config['cache']['ttl'],
                 array_key_exists('service', $config['cache']) ? new Reference($config['cache']['service']) : null,
-                array_key_exists('adapter', $config['cache']) ? $config['cache']['adapter'] : ''
+                array_key_exists('adapter', $config['cache']) ? $config['cache']['adapter'] : '',
+                $cacheClass
             ));
 
-            if ($config['cache']['force_request_ttl']) {
-                $definition->addMethodCall('setRequestTtl', array($config['cache']['ttl']));
-            }
 
             if (array_key_exists('resetter', $config['cache'])) {
                 if (array_key_exists('service', $config['cache']['resetter'])) {
