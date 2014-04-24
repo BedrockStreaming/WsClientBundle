@@ -48,6 +48,24 @@ class GuzzleClientAdapter extends test
     }
 
     /**
+     * Provide HTTP methods list
+     *
+     * @return array
+     */
+    public function httpMethodsProvider()
+    {
+        return [
+            'GET',
+            'HEAD',
+            'DELETE',
+            'PUT',
+            'PATCH',
+            'POST',
+            'OPTIONS'
+        ];
+    }
+
+    /**
      * Teste les setter de base
      *
      * @return void
@@ -144,6 +162,30 @@ class GuzzleClientAdapter extends test
 
         $client = new BaseGuzzleClientAdapter($guzzleClient);
         $request = $client->post('http://www.m6.fr');
+        $response = $request->send();
+
+        $this
+            ->variable($response->getBody())
+                ->isIdenticalTo('un retour');
+
+        $this
+            ->variable($response->getStatusCode())
+                ->isIdenticalTo(500);
+    }
+
+    /**
+     * Test createRequest function
+     *
+     * @dataProvider httpMethodsProvider
+     *
+     * @return void
+     */
+    public function testCreateRequest($method)
+    {
+        $guzzleClient = $this->buildMockWsClient(500);
+
+        $client = new BaseGuzzleClientAdapter($guzzleClient);
+        $request = $client->createRequest($method, 'http://www.m6.fr');
         $response = $request->send();
 
         $this
