@@ -31,6 +31,13 @@ interface ClientAdapterInterface
     public function setBaseUrl($url);
 
     /**
+     * Getclient base URL
+     *
+     * @return string
+     */
+    public function getBaseUrl();
+
+    /**
      * Define client cache
      *
      * @param int    $ttl               Cache expiration time
