@@ -61,8 +61,7 @@ class M6WebWSClientExtension extends Extension
 
             $cacheClass = '\Guzzle\Plugin\Cache\CachePlugin';
 
-            if ($config['cache']['force_request_ttl'])
-            {
+            if ($config['cache']['force_request_ttl']) {
                 $definition->addMethodCall('setRequestTtl', array($config['cache']['ttl']));
                 $cacheClass = '\M6Web\Bundle\WSClientBundle\Cache\Guzzle\ForcedCachePlugin';
             }
