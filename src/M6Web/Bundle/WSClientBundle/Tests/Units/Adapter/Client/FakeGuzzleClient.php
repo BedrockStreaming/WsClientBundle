@@ -1,6 +1,6 @@
 <?php
 
-namespace M6Web\Bundle\WSClientBundle\test\units\Adapter\Client;
+namespace M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client;
 
 require_once __DIR__.'/../../../../../../../../vendor/autoload.php';
 
