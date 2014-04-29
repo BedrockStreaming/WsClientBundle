@@ -34,4 +34,17 @@ interface ResponseAdapterInterface
      * @return string
      */
     public function getContentType();
+
+    /**
+     * retourne un header de la réponse
+     * @return string
+     */
+    public function getHeader($header);
+
+    /**
+     * retourne les headers de la réponse
+     * @return array
+     */
+    public function getHeadears();
+
 }

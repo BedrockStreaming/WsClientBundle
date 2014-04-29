@@ -71,4 +71,20 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
         return $this->response->getInfo($key);
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getHeader($header)
+    {
+        return $this->response->getHeader($header);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHeadears()
+    {
+        return $this->response->getHeaders();
+    }
+
 }
