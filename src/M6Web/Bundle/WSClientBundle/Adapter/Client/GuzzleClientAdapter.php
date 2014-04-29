@@ -74,6 +74,14 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function getBaseUrl()
+    {
+        return $this->client->getBaseUrl();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setConfig(array $config)
     {
         if (!isset($config['timeout'])) {

@@ -1,5 +1,5 @@
 <?php
-namespace M6Web\Bundle\WSClientBundle\test\units\Adapter\Client;
+namespace M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client;
 
 require_once __DIR__.'/../../../../../../../../vendor/autoload.php';
 require_once 'FakeGuzzleClient.php';
@@ -33,7 +33,7 @@ class GuzzleClientAdapter extends test
             return $statusCode;
         };
 
-        $wsClient = new \mock\M6Web\Bundle\WSClientBundle\test\units\Adapter\Client\FakeGuzzleClient();
+        $wsClient = new \mock\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\FakeGuzzleClient();
 
         $wsClient->getMockController()->createRequest = function($method, $uri) use ($wsResponse) {
                 $wsRequest = new \mock\Guzzle\Http\Message\Request($method, $uri);
@@ -45,6 +45,24 @@ class GuzzleClientAdapter extends test
         };
 
         return $wsClient;
+    }
+
+    /**
+     * Provide HTTP methods list
+     *
+     * @return array
+     */
+    public function httpMethodsProvider()
+    {
+        return [
+            'GET',
+            'HEAD',
+            'DELETE',
+            'PUT',
+            'PATCH',
+            'POST',
+            'OPTIONS'
+        ];
     }
 
     /**
@@ -156,6 +174,30 @@ class GuzzleClientAdapter extends test
     }
 
     /**
+     * Test createRequest function
+     *
+     * @dataProvider httpMethodsProvider
+     *
+     * @return void
+     */
+    public function testCreateRequest($method)
+    {
+        $guzzleClient = $this->buildMockWsClient(500);
+
+        $client = new BaseGuzzleClientAdapter($guzzleClient);
+        $request = $client->createRequest($method, 'http://www.m6.fr');
+        $response = $request->send();
+
+        $this
+            ->variable($response->getBody())
+                ->isIdenticalTo('un retour');
+
+        $this
+            ->variable($response->getStatusCode())
+                ->isIdenticalTo(500);
+    }
+
+    /**
      * Test des méthodes relatives au cache
      *
      * @return void
@@ -180,11 +222,11 @@ class GuzzleClientAdapter extends test
 
         $this
             ->exception(function() use ($client, $cacheService) {
-                $client->setCache(5, $cacheService, '\M6Web\Bundle\WSClientBundle\test\units\Adapter\Client\CacheAdpater',  '\Toto');
+                $client->setCache(5, $cacheService, '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',  '\Toto');
             });
 
         // On vérifie le fonctionnement normal
-        $client->setCache(5, $cacheService, '\M6Web\Bundle\WSClientBundle\test\units\Adapter\Client\CacheAdpater',  '\M6Web\Bundle\WSClientBundle\test\units\Adapter\Client\CachePlugin');
+        $client->setCache(5, $cacheService, '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',  '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CachePlugin');
 
         $this
             ->mock($guzzleClient)
