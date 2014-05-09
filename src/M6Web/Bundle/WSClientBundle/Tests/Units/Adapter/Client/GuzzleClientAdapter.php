@@ -1,9 +1,6 @@
 <?php
 namespace M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client;
 
-require_once __DIR__.'/../../../../../../../../vendor/autoload.php';
-require_once 'FakeGuzzleClient.php';
-
 use mageekguy\atoum\test;
 use M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter as BaseGuzzleClientAdapter;
 use Guzzle\Http\Client;
