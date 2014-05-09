@@ -2,48 +2,176 @@
 namespace M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client;
 
 use mageekguy\atoum\test;
-use M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter as BaseGuzzleClientAdapter;
+use M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter as Base;
 use Guzzle\Http\Client;
 
 /**
-* Test
-*
-* @maxChildrenNumber 1
-*/
+ * GuzzleClientAdapter test class
+ *
+ * @maxChildrenNumber 1
+ */
 class GuzzleClientAdapter extends test
 {
-    /**
-     * Construit un mock du client Guzzle
-     *
-     * @param int    $statusCode Statut de la réponse retrounée
-     * @param string $return     Contenu de la réponse retournée
-     *
-     * @return Guzzle\Http\ClientInterface
+     /**
+      * Get a mocked GuzzleClientAdapter who dont really use Guzzle
+      *
+      * @param int    $statusCode Statut de la réponse retrounée
+      * @param string $return     Contenu de la réponse retournée
+      *
+      * @return M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter
      */
-    protected function buildMockWsClient($statusCode = 200, $return = 'un retour')
+    protected function buildMockWsClient($statusCode=200, $return=null)
     {
-        $wsResponse = new \mock\Guzzle\Http\Message\Response($statusCode);
-        $wsResponse->getMockController()->getBody = function() use ($return) {
-            return $return;
-        };
-        $wsResponse->getMockController()->getStatusCode = function() use ($statusCode) {
-            return $statusCode;
-        };
+        $guzzleClient = new \mock\Guzzle\Http\Client();
 
-        $wsClient = new \mock\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\FakeGuzzleClient();
+        $guzzleResponse = new \mock\Guzzle\Http\Message\Response($statusCode);
+        $guzzleResponse->getMockController()->getStatusCode = $statusCode;
+        $guzzleResponse->getMockController()->getBody = $return;
 
-        $wsClient->getMockController()->createRequest = function($method, $uri) use ($wsResponse) {
-                $wsRequest = new \mock\Guzzle\Http\Message\Request($method, $uri);
-                $wsRequest->getMockController()->send = function() use ($wsResponse) {
-                return $wsResponse;
-            };
+        $guzzleRequest = new \mock\Guzzle\Http\Message\Request(uniqid(), uniqid());
+        $guzzleRequest->getMockController()->send = $guzzleResponse;
 
-            return $wsRequest;
-        };
+        $client = new \mock\M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter($guzzleClient);
+        $client->getMockController()->createRequest = $guzzleRequest;
 
-        return $wsClient;
+        return $client;
     }
 
+    /**
+     * @return void
+     */
+    public function testBasicSetter()
+    {
+        $this
+            ->if($guzzleClient = new \Guzzle\Http\Client())
+            ->and($eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher())
+            ->and($client = new Base($guzzleClient))
+            ->and($client->setBaseUrl($base_url='http://www.m6.fr'))
+            ->and($client->setEventDispatcher($eventDispatcher))
+            ->and($client->setConfig(array(
+                'timeout' => 10,
+                'followlocation' => true,
+                'maxredirs' => 6
+            )))
+            ->then
+                ->array($guzzleClient->getConfig('curl.options'))
+                    ->hasSize(3)
+                    ->isEqualTo(array(
+                        CURLOPT_TIMEOUT => 10,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_MAXREDIRS => 6
+                    ))
+                ->string($guzzleClient->getBaseUrl())
+                    ->isEqualTo($base_url)
+                ->object($guzzleClient->getEventDispatcher())
+                    ->isEqualTo($eventDispatcher)
+
+            ->if($client->setConfig([]))
+            ->then
+                ->array($guzzleClient->getConfig('curl.options'))
+                    ->hasSize(1)
+                    ->isEqualTo(array(
+                        CURLOPT_TIMEOUT => 1
+                    ))
+        ;
+    }
+
+    /**
+     * @return void
+     */
+    public function testGet()
+    {
+        $this
+            ->if($client = $this->buildMockWsClient($status_code=rand(), $body=uniqid()))
+            ->and($request = $client->get($url=uniqid()))
+            ->and($response = $request->send())
+            ->then
+                ->variable($response->getStatusCode())
+                    ->isIdenticalTo($status_code)
+                ->string($response->getBody())
+                    ->isIdenticalTo($body);
+        ;
+    }
+
+    /**
+     * @return void
+     */
+    public function testPost()
+    {
+        $this
+            ->if($client = $this->buildMockWsClient($status_code=rand(), $body=uniqid()))
+            ->and($request = $client->post($url='http://www.m6.fr'))
+            ->and($response = $request->send())
+            ->then
+                ->variable($response->getStatusCode())
+                    ->isIdenticalTo($status_code)
+                ->string($response->getBody())
+                    ->isIdenticalTo($body);
+    }
+
+    /**
+     * @dataProvider httpMethodsProvider
+     *
+     * @return void
+     */
+    public function testCreateRequest($method)
+    {
+        $this
+            ->if($client = $this->buildMockWsClient($status_code=rand(), $body=uniqid()))
+            ->and($request = $client->createRequest($method, $url=uniqid()))
+            ->and($response = $request->send())
+            ->then
+                ->variable($response->getStatusCode())
+                    ->isIdenticalTo($status_code)
+                ->string($response->getBody())
+                    ->isIdenticalTo($body)
+        ;
+    }
+
+    /**
+     * @return void
+     */
+    public function testCache()
+    {
+        $this
+            ->if($guzzleClient = new \mock\Guzzle\Http\Client())
+            ->and($client = new Base($guzzleClient))
+            ->and($cacheService = new \mock\M6Web\Bundle\WSClientBundle\Cache\CacheInterface())
+
+            // without cache service
+            ->then
+                ->variable($client->shouldResetCache())
+                    ->isNull()
+                ->exception(function() use ($client, $cacheService) {
+                    $client->setCache($ttl=rand(), $cacheService, '\Toto');
+                })
+                    ->hasMessage('Class "\Toto" doesn\'t exists.')
+
+                ->exception(function() use ($client, $cacheService) {
+                    $client->setCache(
+                        $ttl=5, 
+                        $cacheService, 
+                        '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',  
+                        '\Toto'
+                    );
+                })
+                    ->hasMessage('Class "\Toto" doesn\'t exists.')
+
+            // Standard use case
+            ->if($client->setCache(
+                $ttl=5, 
+                $cacheService, 
+                $cacheAdapterClass='\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',  
+                $cachePluginClass='\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CachePlugin'
+            ))
+            ->then
+                ->mock($guzzleClient)
+                    ->call('addSubscriber')
+                        ->withArguments(new CachePlugin())
+                            ->once()
+        ;
+    }
+    
     /**
      * Provide HTTP methods list
      *
@@ -61,198 +189,6 @@ class GuzzleClientAdapter extends test
             'OPTIONS'
         ];
     }
-
-    /**
-     * Teste les setter de base
-     *
-     * @return void
-     */
-    public function testBasicSetter()
-    {
-        $guzzleClient = $this->buildMockWsClient();
-        $eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher();
-
-        $client = new BaseGuzzleClientAdapter($guzzleClient);
-        $client->setBaseUrl('http://www.m6.fr');
-        $client->setEventDispatcher($eventDispatcher);
-        $client->setConfig(array(
-            'timeout' => 10,
-            'followlocation' => true,
-            'maxredirs' => 6
-        ));
-
-        // Vérification qu'on définit la bonne url de base
-        $this
-            ->mock($guzzleClient)
-                ->call('setBaseUrl')
-                    ->withIdenticalArguments('http://www.m6.fr')
-                        ->once();
-
-        // Vérification de la définition de l'event dispatcher
-        $this
-            ->mock($guzzleClient)
-                ->call('setEventDispatcher')
-                    ->withIdenticalArguments($eventDispatcher)
-                        ->once();
-
-        // Vérification qu'on définit la bonne config
-        $configWanted = array(
-            'curl.options' => array(
-                CURLOPT_TIMEOUT => 10,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_MAXREDIRS => 6
-            )
-        );
-
-        $this
-            ->mock($guzzleClient)
-                ->call('setConfig')
-                    ->withIdenticalArguments($configWanted)
-                        ->once();
-
-        // Vérification du timeout par défaut
-        $client->setConfig(array());
-        $configWanted = array(
-            'curl.options' => array(
-                CURLOPT_TIMEOUT => 1
-            )
-        );
-
-        $this
-            ->mock($guzzleClient)
-                ->call('setConfig')
-                    ->withIdenticalArguments($configWanted)
-                        ->once();
-    }
-
-    /**
-     * Teste la méthode get
-     *
-     * @return void
-     */
-    public function testGet()
-    {
-        $guzzleClient = $this->buildMockWsClient(200, 1000);
-
-        $client = new BaseGuzzleClientAdapter($guzzleClient);
-        $request = $client->get('http://www.google.com');
-        $response = $request->send();
-
-        // On vérifie que le corps de la réponse est bien une string
-        $this
-            ->variable($response->getBody())
-                ->isIdenticalTo('1000');
-
-        $this
-            ->variable($response->getStatusCode())
-                ->isIdenticalTo(200);
-    }
-
-    /**
-     * Test la méthode post
-     *
-     * @return void
-     */
-    public function testPost()
-    {
-        $guzzleClient = $this->buildMockWsClient(500);
-
-        $client = new BaseGuzzleClientAdapter($guzzleClient);
-        $request = $client->post('http://www.m6.fr');
-        $response = $request->send();
-
-        $this
-            ->variable($response->getBody())
-                ->isIdenticalTo('un retour');
-
-        $this
-            ->variable($response->getStatusCode())
-                ->isIdenticalTo(500);
-    }
-
-    /**
-     * Test createRequest function
-     *
-     * @dataProvider httpMethodsProvider
-     *
-     * @return void
-     */
-    public function testCreateRequest($method)
-    {
-        $guzzleClient = $this->buildMockWsClient(500);
-
-        $client = new BaseGuzzleClientAdapter($guzzleClient);
-        $request = $client->createRequest($method, 'http://www.m6.fr');
-        $response = $request->send();
-
-        $this
-            ->variable($response->getBody())
-                ->isIdenticalTo('un retour');
-
-        $this
-            ->variable($response->getStatusCode())
-                ->isIdenticalTo(500);
-    }
-
-    /**
-     * Test des méthodes relatives au cache
-     *
-     * @return void
-     */
-    public function testCache()
-    {
-        $cacheService = new \mock\M6Web\Bundle\WSClientBundle\Cache\CacheInterface();
-        $guzzleClient = $this->buildMockWsClient();
-
-        $client = new BaseGuzzleClientAdapter($guzzleClient);
-
-        // Sans cache resetter
-        $this
-            ->variable($client->shouldResetCache())
-                ->isIdenticalTo(null);
-
-        // On vérifie les exceptions dans le cas de classe inexistante
-        $this
-            ->exception(function() use ($client, $cacheService) {
-                $client->setCache(5, $cacheService, '\Toto');
-            });
-
-        $this
-            ->exception(function() use ($client, $cacheService) {
-                $client->setCache(5, $cacheService, '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',  '\Toto');
-            });
-
-        // On vérifie le fonctionnement normal
-        $client->setCache(5, $cacheService, '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',  '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CachePlugin');
-
-        $this
-            ->mock($guzzleClient)
-                ->call('addSubscriber')
-                    ->withArguments(new CachePlugin())
-                        ->once();
-    }
-
-    /**
-     * testRealsUrls with purge
-     * @return void
-     */
-    public function testRealUrls()
-    {
-        $guzzleClient = new Client('https://api.github.com');
-        $client = new BaseGuzzleClientAdapter($guzzleClient);
-
-        $response = $client->get('http://www.google.fr')->send();
-        $this->assert
-            ->string($response->getInfo("url"))
-            ->isIdenticalTo("http://www.google.fr");
-
-        $response = $client->get('http://www.google.fr?coucou=1')->send();
-        $this->assert
-            ->string($response->getInfo("url"))
-            ->isIdenticalTo("http://www.google.fr?coucou=1");
-
-    }
-
 }
 
 class CacheAdpater
@@ -263,5 +199,6 @@ class CachePlugin implements \Symfony\Component\EventDispatcher\EventSubscriberI
 {
     public static function getSubscribedEvents()
     {
+        return [];
     }
 }
