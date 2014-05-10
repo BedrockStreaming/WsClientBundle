@@ -37,7 +37,7 @@ class WSClientFactory
                 break;
             default:
                 if (!class_exists($clientAdapterClass)) {
-                    throw new \InvalidArgumentException('La classe client adpater "' . $clientAdapterClass . '" n\'est pas implémenté.');
+                    throw new \InvalidArgumentException('Client adapter class "' . $clientAdapterClass . '" doesn\'t exists.');
                 }
                 $client = new $clientAdapterClass($baseUrl, $config);
                 break;

@@ -127,11 +127,11 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         $this->cache = $cacheService;
 
         if (!class_exists($cacheAdapterClass)) {
-            throw new \Exception('Class "' . $cacheAdapterClass . '" doesn\'t exist.');
+            throw new \Exception('Class "' . $cacheAdapterClass . '" doesn\'t exists.');
         }
 
         if (!class_exists($cachePluginClass)) {
-            throw new \Exception('Class "' . $cachePluginClass . '"  doesn\'t exist.');
+            throw new \Exception('Class "' . $cachePluginClass . '" doesn\'t exists.');
         }
 
         $adapter = new $cacheAdapterClass($cacheService, $ttl);
