@@ -14,6 +14,9 @@
         "psr-0": { "": "src/" }
     },
     "minimum-stability" : "dev",
+    "require": {
+        "symfony/stopwatch" : "@stable"
+    },
     "require-dev": {
         "atoum/atoum": "master-dev",
         "atoum/atoum-bundle": "master-dev",
