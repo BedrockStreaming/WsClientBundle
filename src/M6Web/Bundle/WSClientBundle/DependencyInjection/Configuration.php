@@ -21,6 +21,10 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root('m6_ws_client');
 
         $rootNode
+            ->children()
+                ->booleanNode('disable_data_collector')->defaultValue(false)->end()
+            ->end();
+        $rootNode
             ->requiresAtLeastOneElement()
             ->useAttributeAsKey('alias')
             ->prototype('array')
