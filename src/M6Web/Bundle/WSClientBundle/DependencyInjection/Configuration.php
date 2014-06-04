@@ -25,35 +25,40 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('disable_data_collector')->defaultValue(false)->end()
             ->end();
         $rootNode
-            ->requiresAtLeastOneElement()
-            ->useAttributeAsKey('alias')
-            ->prototype('array')
-                ->children()
-                    ->scalarNode('base_url')->end()
-                    ->variableNode('config')
-                        ->validate()
-                            ->ifTrue(function($v){
-                                return !is_array($v);
-                            })
-                            ->thenInvalid('Invalid value %s for client config, it must be an array.')
+            ->children()
+                ->arrayNode('clients')
+
+                ->requiresAtLeastOneElement()
+                ->useAttributeAsKey('alias')
+                ->prototype('array')
+                    ->children()
+                        ->scalarNode('base_url')->end()
+                        ->variableNode('config')
+                            ->validate()
+                                ->ifTrue(function($v){
+                                    return !is_array($v);
+                                })
+                                ->thenInvalid('Invalid value %s for client config, it must be an array.')
+                            ->end()
                         ->end()
-                    ->end()
-                    ->scalarNode('adapter_class')->end()
-                    ->arrayNode('cache')
-                        ->children()
-                            ->scalarNode('ttl')->defaultValue(86400)->end()
-                            ->booleanNode('force_request_ttl')->defaultValue(false)->end()
-                            ->scalarNode('service')->end()
-                            ->scalarNode('adapter')->end()
-                            ->arrayNode('resetter')
-                                ->children()
-                                    ->scalarNode('service')->end()
-                                    ->scalarNode('query_param')->end()
+                        ->scalarNode('adapter_class')->end()
+                        ->arrayNode('cache')
+                            ->children()
+                                ->scalarNode('ttl')->defaultValue(86400)->end()
+                                ->booleanNode('force_request_ttl')->defaultValue(false)->end()
+                                ->scalarNode('service')->end()
+                                ->scalarNode('adapter')->end()
+                                ->arrayNode('resetter')
+                                    ->children()
+                                        ->scalarNode('service')->end()
+                                        ->scalarNode('query_param')->end()
+                                    ->end()
                                 ->end()
                             ->end()
                         ->end()
                     ->end()
                 ->end()
+
             ->end();
 
         return $treeBuilder;

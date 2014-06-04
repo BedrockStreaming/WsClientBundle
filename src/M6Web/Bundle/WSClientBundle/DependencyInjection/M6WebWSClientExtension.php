@@ -25,15 +25,14 @@ class M6WebWSClientExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        foreach ($config as $alias => $configClient) {
+        foreach ($config['clients'] as $alias => $configClient) {
             $this->loadClient($container, $alias, $configClient);
         }
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        if (!$config['disable_data_collector'])
-        {
+        if (!$config['disable_data_collector']) {
             $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
             $loader->load('data_collector.yml');
         }
