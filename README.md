@@ -29,16 +29,17 @@ Here is an example of a simple configuration :
 
 ```yaml
 m6_ws_client:
-    default:
-        base_url: 'ws-usine.m6web.fr'
-        config:
-            timeout: 1
-            followlocation: true
-            maxredirs: 5
-        cache:
-            ttl: 3600
-            adapter: M6\Bundle\RedisBundle\Guzzle\RedisCacheAdapter
-            service: m6_redis
+    clients:
+        default:
+            base_url: 'ws-usine.m6web.fr'
+            config:
+                timeout: 1
+                followlocation: true
+                maxredirs: 5
+            cache:
+                ttl: 3600
+                adapter: M6\Bundle\RedisBundle\Guzzle\RedisCacheAdapter
+                service: m6_redis
 ```
 
 ## Simple use case
