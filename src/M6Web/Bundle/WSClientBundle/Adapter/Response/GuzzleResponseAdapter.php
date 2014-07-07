@@ -15,9 +15,9 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
     protected $response;
 
     /**
-     * Construit une réponse
+     * Build a response
      *
-     * @param Response $guzzleResponse Réponse Guzzle à adapter
+     * @param Response $guzzleResponse Guzzle response at adapter
      *
      * @return \M6Web\Bundle\WSClientBundle\Adapter\Response\GuzzleResponseAdapter
      */
@@ -61,7 +61,8 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
     }
 
     /**
-     * retour le curl info http://www.php.net/manual/en/function.curl-getinfo.php
+     * retour the curl info http://www.php.net/manual/en/function.curl-getinfo.php
+     *
      * @param null $key
      *
      * @return string
@@ -85,6 +86,24 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
     public function getHeaders()
     {
         return $this->response->getHeaders();
+    }
+
+    /**
+     * return a scalar value of \Guzzle\Http\Message\Header type
+     *
+     * @param string $header Header name
+     * @param string $glue   Separator (default='')
+     *
+     * @return string
+     */
+    public function getHeaderValue($header, $glue = '')
+    {
+        // $header is \Guzzle\Http\Message\Header
+        if ($header = $this->getHeader($header)) {
+            return implode($glue, $header->toArray());
+        }
+
+        return $header;
     }
 
 }

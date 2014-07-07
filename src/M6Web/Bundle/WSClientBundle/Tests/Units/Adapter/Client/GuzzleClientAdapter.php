@@ -3,6 +3,8 @@ namespace M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client;
 
 use mageekguy\atoum\test;
 use M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter as Base;
+use M6Web\Bundle\WSClientBundle\Adapter\Request\GuzzleRequestAdapter;
+use M6Web\Bundle\WSClientBundle\Adapter\Response\GuzzleResponseAdapter;
 use Guzzle\Http\Client;
 
 /**
@@ -20,16 +22,16 @@ class GuzzleClientAdapter extends test
       *
       * @return M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter
      */
-    protected function buildMockWsClient($statusCode=200, $return=null)
+    protected function buildMockWsClient($statusCode=200, $return=null, $headers = null)
     {
         $guzzleClient = new \mock\Guzzle\Http\Client();
 
-        $guzzleResponse = new \mock\Guzzle\Http\Message\Response($statusCode);
+        $guzzleResponse = new \mock\Guzzle\Http\Message\Response($statusCode, $headers);
         $guzzleResponse->getMockController()->getStatusCode = $statusCode;
-        $guzzleResponse->getMockController()->getBody = $return;
+        $guzzleResponse->getMockController()->getBody       = $return;
 
         $guzzleRequest = new \mock\Guzzle\Http\Message\Request(uniqid(), uniqid());
-        $guzzleRequest->getMockController()->send = $guzzleResponse;
+        $guzzleRequest->getMockController()->send = new GuzzleResponseAdapter($guzzleResponse);
 
         $client = new \mock\M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter($guzzleClient);
         $client->getMockController()->createRequest = $guzzleRequest;
@@ -171,6 +173,39 @@ class GuzzleClientAdapter extends test
                             ->once()
         ;
     }
+
+    /**
+     * testHeader
+     */
+    public function testHeaders()
+    {
+        $headers = [
+            'X-Rest-Collection-Count'         => 250,
+            'X-Rest-Collection-Limit'         => 20,
+            'X-Rest-Collection-Count-Content' => 20,
+            'X-Rest-Collection-Count-Glue'    => 'pot,de,glue'
+        ];
+
+        $this
+            ->if($client = $this->buildMockWsClient($statusCode = rand(), $body = uniqid(), $headers))
+            ->and($request = $client->get($url=uniqid()))
+            ->and($response = $request->send())
+            ->then
+                ->variable($response->getStatusCode())
+                    ->isIdenticalTo($statusCode)
+                ->string($response->getBody())
+                    ->isIdenticalTo($body)
+                ->object($response->getHeaders())
+                    ->isInstanceOf('Guzzle\Http\Message\Header\HeaderCollection')
+                ->object($response->getHeader('X-Rest-Collection-Count'))
+                    ->isInstanceOf('Guzzle\Http\Message\Header')
+                ->string($response->getHeaderValue('X-Rest-Collection-Limit'))
+                    ->isEqualTo($headers['X-Rest-Collection-Limit'])
+                ->string($response->getHeaderValue('X-Rest-Collection-Count-Glue', ','))
+                    ->isEqualTo($headers['X-Rest-Collection-Count-Glue'])
+        ;
+    }
+
     
     /**
      * Provide HTTP methods list

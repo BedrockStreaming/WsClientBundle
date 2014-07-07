@@ -16,9 +16,9 @@ class GuzzleRequestAdapter implements RequestAdapterInterface
     protected $request;
 
     /**
-     * Construit une requête
+     * Build a request
      *
-     * @param RequestInterface $guzzleRequest Requête Guzzle à adapter
+     * @param RequestInterface $guzzleRequest Guzzle request at adapter
      *
      * @return \M6Web\Bundle\WSClientBundle\Adapter\Request\GuzzleRequestAdapter
      */
