@@ -37,6 +37,8 @@ interface ResponseAdapterInterface
 
     /**
      * retourne un header de la réponse
+     * @param string $header Header name
+     *
      * @return string
      */
     public function getHeader($header);
@@ -45,6 +47,6 @@ interface ResponseAdapterInterface
      * retourne les headers de la réponse
      * @return array
      */
-    public function getHeadears();
+    public function getHeaders();
 
 }
