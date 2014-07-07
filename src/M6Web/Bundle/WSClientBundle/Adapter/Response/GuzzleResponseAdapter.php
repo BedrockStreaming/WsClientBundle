@@ -87,4 +87,22 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
         return $this->response->getHeaders();
     }
 
+    /**
+     * retourne la valeur string d'un objet Guzzle Header
+     *
+     * @param string $header Header name
+     * @param string $glue   Separator (default='')
+     *
+     * @return string
+     */
+    public function getHeaderValue($header, $glue = '')
+    {
+        /* $header \Guzzle\Http\Message\Header */
+        if ($header = $this->getHeader($header)) {
+            return implode($glue, $header->toArray());
+        }
+
+        return $header;
+    }
+
 }
