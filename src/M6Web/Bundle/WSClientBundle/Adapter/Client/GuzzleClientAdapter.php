@@ -9,7 +9,7 @@ use M6Web\Bundle\WSClientBundle\Cache\CacheInterface;
 use M6Web\Bundle\WSClientBundle\Adapter\Request\GuzzleRequestAdapter;
 
 /**
- * Adpater pour un client de webaservices Guzzle
+ * Adapter form Guzzle webservices client
  */
 class GuzzleClientAdapter implements ClientAdapterInterface
 {
@@ -49,9 +49,9 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     protected $throwExceptionOnHttpError;
 
     /**
-     * Construit un client
+     * Build a client
      *
-     * @param ClientInterface $guzzleClient Client Guzzle à adapter
+     * @param ClientInterface $guzzleClient Guzzle client at adapter
      *
      * @return \M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter
      */
