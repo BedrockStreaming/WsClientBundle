@@ -195,7 +195,7 @@ class GuzzleClientAdapter extends test
                     ->isIdenticalTo($statusCode)
                 ->string($response->getBody())
                     ->isIdenticalTo($body)
-                ->object($response->getHeadears())
+                ->object($response->getHeaders())
                     ->isInstanceOf('Guzzle\Http\Message\Header\HeaderCollection')
                 ->object($response->getHeader('X-Rest-Collection-Count'))
                     ->isInstanceOf('Guzzle\Http\Message\Header')

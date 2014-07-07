@@ -51,7 +51,7 @@ interface ResponseAdapterInterface
      *
      * @return array
      */
-    public function getHeadears();
+    public function getHeaders();
 
     /**
      * return a scalar value of \Guzzle\Http\Message\Header type
