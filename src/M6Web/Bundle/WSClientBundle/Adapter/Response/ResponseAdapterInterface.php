@@ -50,7 +50,7 @@ interface ResponseAdapterInterface
     public function getHeadears();
 
     /**
-     * Retourne un header linearisé de la réponse
+     * return a scalar value of \Guzzle\Http\Message\Header type
      *
      * @param string $header Header name
      * @param string $glue   Separator (default='')

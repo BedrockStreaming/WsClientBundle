@@ -88,7 +88,7 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
     }
 
     /**
-     * retourne la valeur string d'un objet Guzzle Header
+     * return a scalar value of \Guzzle\Http\Message\Header type
      *
      * @param string $header Header name
      * @param string $glue   Separator (default='')
@@ -97,7 +97,7 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
      */
     public function getHeaderValue($header, $glue = '')
     {
-        /* $header \Guzzle\Http\Message\Header */
+        // $header is \Guzzle\Http\Message\Header
         if ($header = $this->getHeader($header)) {
             return implode($glue, $header->toArray());
         }
