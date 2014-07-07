@@ -82,7 +82,7 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getHeadears()
+    public function getHeaders()
     {
         return $this->response->getHeaders();
     }
