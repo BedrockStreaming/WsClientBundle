@@ -4,7 +4,7 @@ namespace M6Web\Bundle\WSClientBundle\Adapter\Client;
 
 use M6Web\Bundle\WSClientBundle\Cache\CacheInterface;
 use M6Web\Bundle\WSClientBundle\Cache\CacheResetterInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 /**
@@ -67,11 +67,11 @@ interface ClientAdapterInterface
     /**
      * Define event dispatcher
      *
-     * @param EventDispatcher $eventDispatcher dispatcher
+     * @param EventDispatcherInterface $eventDispatcher dispatcher
      *
      * @return ClientAdapterInterface
      */
-    public function setEventDispatcher(EventDispatcher $eventDispatcher);
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher);
 
     /**
      * Define stopwatcher (debug toolbar timeline)

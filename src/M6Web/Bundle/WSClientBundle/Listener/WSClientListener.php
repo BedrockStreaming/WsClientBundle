@@ -1,7 +1,7 @@
 <?php
 namespace M6Web\Bundle\WSClientBundle\Listener;
 
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 use M6Web\Bundle\WSClientBundle\EventDispatcher\WSClientEvent;
 
@@ -19,9 +19,9 @@ class WSClientListener
 
     /**
      * constructueur injectant le dispatch
-     * @param EventDispatcher $dispatcher dispatcher
+     * @param EventDispatcherInterface $dispatcher dispatcher
      */
-    public function __construct(EventDispatcher $dispatcher)
+    public function __construct(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }

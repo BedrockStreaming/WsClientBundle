@@ -3,7 +3,7 @@
 namespace M6Web\Bundle\WSClientBundle\Adapter\Client;
 
 use Guzzle\Http\ClientInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 use M6Web\Bundle\WSClientBundle\Cache\CacheInterface;
 use M6Web\Bundle\WSClientBundle\Adapter\Request\GuzzleRequestAdapter;
@@ -19,7 +19,7 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     protected $client;
 
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -112,7 +112,7 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function setEventDispatcher(EventDispatcher $eventDispatcher)
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher)
     {
         $this->client->setEventDispatcher($eventDispatcher);
 
