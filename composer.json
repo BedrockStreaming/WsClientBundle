@@ -23,7 +23,7 @@
         "guzzle/guzzle" : "@stable"
     },
     "suggest": {
-        "guzzle/guzzle" : "> 3.7",
+        "guzzle/guzzle" : "> 4.0",
         "m6web/redis-bundle": "@stable"
     }
 }
