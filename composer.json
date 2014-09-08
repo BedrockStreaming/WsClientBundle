@@ -20,10 +20,10 @@
     "require-dev": {
         "atoum/atoum": "master-dev",
         "atoum/atoum-bundle": "master-dev",
-        "guzzle/guzzle" : "@stable"
+        "guzzlehttp/guzzle" : "@stable"
     },
     "suggest": {
-        "guzzle/guzzle" : "> 4.0",
+        "guzzlehttp/guzzle" : "@stable",
         "m6web/redis-bundle": "@stable"
     }
 }
