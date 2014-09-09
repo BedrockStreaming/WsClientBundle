@@ -4,11 +4,7 @@ namespace M6Web\Bundle\WSClientBundle\Adapter\Client;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
-use M6Web\Bundle\WSClientBundle\Adapter\Request\GuzzleRequestAdapter;
-use M6Web\Bundle\WSClientBundle\Adapter\Response\GuzzleResponseAdapter;
-use M6Web\Bundle\WSClientBundle\Adapter\Response\ResponseAdapterInterface;
 use M6Web\Bundle\WSClientBundle\Adapter\Request\RequestAdapterInterface;
-use Doctrine\Common\Cache\Cache;
 use M6Web\Bundle\WSClientBundle\Cache\CacheInterface;
 
 /**

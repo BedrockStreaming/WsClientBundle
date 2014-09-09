@@ -24,7 +24,6 @@
         "guzzlehttp/guzzle" : "@stable"
     },
     "suggest": {
-        "guzzlehttp/guzzle" : "@stable",
         "m6web/redis-bundle": "@stable"
     }
 }
