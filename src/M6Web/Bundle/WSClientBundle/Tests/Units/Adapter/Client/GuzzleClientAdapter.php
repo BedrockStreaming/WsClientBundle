@@ -6,6 +6,8 @@ use M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter as Base;
 use M6Web\Bundle\WSClientBundle\Adapter\Request\GuzzleRequestAdapter;
 use M6Web\Bundle\WSClientBundle\Adapter\Response\GuzzleResponseAdapter;
 use Guzzle\Http\Client;
+use GuzzleHttp\Message\RequestInterface;
+use GuzzleHttp\Message\ResponseInterface;
 
 /**
  * GuzzleClientAdapter test class
@@ -22,19 +24,21 @@ class GuzzleClientAdapter extends test
       *
       * @return M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter
      */
-    protected function buildMockWsClient($statusCode=200, $return=null, $headers = null)
+    protected function buildMockWsClient($statusCode=200, $return=null, $headers = [])
     {
-        $guzzleClient = new \mock\Guzzle\Http\Client();
+        $guzzleClient = new \mock\GuzzleHttp\Client();
 
-        $guzzleResponse = new \mock\Guzzle\Http\Message\Response($statusCode, $headers);
+        $guzzleRequest = new \mock\GuzzleHttp\Message\Request(uniqid(), uniqid());
+
+        $guzzleResponse = new \mock\GuzzleHttp\Message\Response($statusCode, $headers);
         $guzzleResponse->getMockController()->getStatusCode = $statusCode;
         $guzzleResponse->getMockController()->getBody       = $return;
 
-        $guzzleRequest = new \mock\Guzzle\Http\Message\Request(uniqid(), uniqid());
-        $guzzleRequest->getMockController()->send = new GuzzleResponseAdapter($guzzleResponse);
-
         $client = new \mock\M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter($guzzleClient);
-        $client->getMockController()->createRequest = $guzzleRequest;
+        $client->getMockController()->createRequest = new GuzzleRequestAdapter($guzzleRequest);
+        $client->getMockController()->send = new GuzzleResponseAdapter($guzzleResponse);
+        $client->getMockController()->post = new GuzzleResponseAdapter($guzzleResponse);
+        $client->getMockController()->get = new GuzzleResponseAdapter($guzzleResponse);
 
         return $client;
     }
@@ -45,36 +49,12 @@ class GuzzleClientAdapter extends test
     public function testBasicSetter()
     {
         $this
-            ->if($guzzleClient = new \Guzzle\Http\Client())
+            ->if($guzzleClient = new \GuzzleHttp\Client())
             ->and($eventDispatcher = new \mock\Symfony\Component\EventDispatcher\EventDispatcher())
             ->and($client = new Base($guzzleClient))
-            ->and($client->setBaseUrl($base_url='http://www.m6.fr'))
-            ->and($client->setEventDispatcher($eventDispatcher))
-            ->and($client->setConfig(array(
-                'timeout' => 10,
-                'followlocation' => true,
-                'maxredirs' => 6
-            )))
             ->then
-                ->array($guzzleClient->getConfig('curl.options'))
-                    ->hasSize(3)
-                    ->isEqualTo(array(
-                        CURLOPT_TIMEOUT => 10,
-                        CURLOPT_FOLLOWLOCATION => true,
-                        CURLOPT_MAXREDIRS => 6
-                    ))
-                ->string($guzzleClient->getBaseUrl())
-                    ->isEqualTo($base_url)
-                ->object($guzzleClient->getEventDispatcher())
-                    ->isEqualTo($eventDispatcher)
-
-            ->if($client->setConfig([]))
-            ->then
-                ->array($guzzleClient->getConfig('curl.options'))
-                    ->hasSize(1)
-                    ->isEqualTo(array(
-                        CURLOPT_TIMEOUT => 1
-                    ))
+                ->object($guzzleClient->getEmitter())
+                    ->isInstanceOf('\GuzzleHttp\Event\Emitter')
         ;
     }
 
@@ -85,8 +65,7 @@ class GuzzleClientAdapter extends test
     {
         $this
             ->if($client = $this->buildMockWsClient($status_code=rand(), $body=uniqid()))
-            ->and($request = $client->get($url=uniqid()))
-            ->and($response = $request->send())
+            ->and($response = $client->get($url=uniqid()))
             ->then
                 ->variable($response->getStatusCode())
                     ->isIdenticalTo($status_code)
@@ -102,8 +81,7 @@ class GuzzleClientAdapter extends test
     {
         $this
             ->if($client = $this->buildMockWsClient($status_code=rand(), $body=uniqid()))
-            ->and($request = $client->post($url='http://www.m6.fr'))
-            ->and($response = $request->send())
+            ->and($response = $client->post($url='http://www.m6.fr'))
             ->then
                 ->variable($response->getStatusCode())
                     ->isIdenticalTo($status_code)
@@ -121,7 +99,7 @@ class GuzzleClientAdapter extends test
         $this
             ->if($client = $this->buildMockWsClient($status_code=rand(), $body=uniqid()))
             ->and($request = $client->createRequest($method, $url=uniqid()))
-            ->and($response = $request->send())
+            ->and($response = $client->send($request))
             ->then
                 ->variable($response->getStatusCode())
                     ->isIdenticalTo($status_code)
@@ -136,7 +114,7 @@ class GuzzleClientAdapter extends test
     public function testCache()
     {
         $this
-            ->if($guzzleClient = new \mock\Guzzle\Http\Client())
+            ->if($guzzleClient = new \mock\GuzzleHttp\Client())
             ->and($client = new Base($guzzleClient))
             ->and($cacheService = new \mock\M6Web\Bundle\WSClientBundle\Cache\CacheInterface())
 
@@ -145,32 +123,31 @@ class GuzzleClientAdapter extends test
                 ->variable($client->shouldResetCache())
                     ->isNull()
                 ->exception(function() use ($client, $cacheService) {
-                    $client->setCache($ttl=rand(), $cacheService, '\Toto');
+                    $client->setCache($ttl=rand(), false, $cacheService, '\Toto');
                 })
-                    ->hasMessage('Class "\Toto" doesn\'t exists.')
+                    ->hasMessage('Class "\Toto" doesn\'t exists or doesn\'t implement Doctrine\Common\Cache\Cache.')
 
                 ->exception(function() use ($client, $cacheService) {
                     $client->setCache(
-                        $ttl=5, 
-                        $cacheService, 
-                        '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',  
+                        $ttl=5, false,
+                        $cacheService,
+                        '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',
                         '\Toto'
                     );
                 })
-                    ->hasMessage('Class "\Toto" doesn\'t exists.')
+                    ->hasMessage('Class "\Toto" doesn\'t exists or doesn\'t implement GuzzleHttp\Subscriber\Cache\CacheStorageInterface.')
 
             // Standard use case
             ->if($client->setCache(
-                $ttl=5, 
-                $cacheService, 
-                $cacheAdapterClass='\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',  
-                $cachePluginClass='\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CachePlugin'
+                $ttl=5, false,
+                $cacheService,
+                $cacheAdapterClass='\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',
+                $cacheStorageClass='\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheStorage'
             ))
             ->then
                 ->mock($guzzleClient)
-                    ->call('addSubscriber')
-                        ->withArguments(new CachePlugin())
-                            ->once()
+                    ->call('getEmitter')
+                        ->once()
         ;
     }
 
@@ -182,31 +159,27 @@ class GuzzleClientAdapter extends test
         $headers = [
             'X-Rest-Collection-Count'         => 250,
             'X-Rest-Collection-Limit'         => 20,
-            'X-Rest-Collection-Count-Content' => 20,
-            'X-Rest-Collection-Count-Glue'    => 'pot,de,glue'
+            'X-Rest-Collection-Count-Content' => 20
         ];
 
         $this
             ->if($client = $this->buildMockWsClient($statusCode = rand(), $body = uniqid(), $headers))
-            ->and($request = $client->get($url=uniqid()))
-            ->and($response = $request->send())
+            ->and($response = $client->get($url=uniqid()))
             ->then
                 ->variable($response->getStatusCode())
                     ->isIdenticalTo($statusCode)
                 ->string($response->getBody())
                     ->isIdenticalTo($body)
-                ->object($response->getHeaders())
-                    ->isInstanceOf('Guzzle\Http\Message\Header\HeaderCollection')
-                ->object($response->getHeader('X-Rest-Collection-Count'))
-                    ->isInstanceOf('Guzzle\Http\Message\Header')
-                ->string($response->getHeaderValue('X-Rest-Collection-Limit'))
-                    ->isEqualTo($headers['X-Rest-Collection-Limit'])
-                ->string($response->getHeaderValue('X-Rest-Collection-Count-Glue', ','))
-                    ->isEqualTo($headers['X-Rest-Collection-Count-Glue'])
+                ->array($response->getHeaders())
+                    ->hasKeys(array_keys($headers))
+                ->string($response->getHeader('X-Rest-Collection-Count'))
+                    ->isEqualTo($headers['X-Rest-Collection-Count'])
+                ->string($response->getHeader('X-Rest-Collection-Limit'))
+                    ->isEqualTo($headers['X-Rest-Collection-Limit']);
         ;
     }
 
-    
+
     /**
      * Provide HTTP methods list
      *
@@ -226,14 +199,56 @@ class GuzzleClientAdapter extends test
     }
 }
 
-class CacheAdpater
+class CacheAdpater implements \Doctrine\Common\Cache\Cache
 {
+    function fetch($id)
+    {
+
+    }
+
+    function contains($id)
+    {
+
+    }
+
+    function save($id, $data, $lifeTime = 0)
+    {
+
+    }
+
+    function delete($id)
+    {
+
+    }
+
+    function getStats()
+    {
+
+    }
 }
 
-class CachePlugin implements \Symfony\Component\EventDispatcher\EventSubscriberInterface
+class CacheStorage implements \GuzzleHttp\Subscriber\Cache\CacheStorageInterface
 {
-    public static function getSubscribedEvents()
+    public function fetch(RequestInterface $request)
     {
-        return [];
+
+    }
+
+    public function cache(
+        RequestInterface $request,
+        ResponseInterface $response
+    )
+    {
+
+    }
+
+    public function delete(RequestInterface $request)
+    {
+
+    }
+
+    public function purge($url)
+    {
+
     }
 }
