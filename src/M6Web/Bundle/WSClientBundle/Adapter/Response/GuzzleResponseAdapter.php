@@ -2,7 +2,7 @@
 
 namespace M6Web\Bundle\WSClientBundle\Adapter\Response;
 
-use Guzzle\Http\Message\Response;
+use GuzzleHttp\Message\Response;
 
 /**
  * Adpater pour une réponse Guzzle
@@ -49,7 +49,7 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
      */
     public function isContentType($type)
     {
-        return $this->response->isContentType($type);
+        return (strtolower($this->getContentType()) == strtolower($type));
     }
 
     /**
@@ -57,19 +57,7 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
      */
     public function getContentType()
     {
-        return $this->response->getContentType();
-    }
-
-    /**
-     * retour the curl info http://www.php.net/manual/en/function.curl-getinfo.php
-     *
-     * @param null $key
-     *
-     * @return string
-     */
-    public function getInfo($key = null)
-    {
-        return $this->response->getInfo($key);
+        return $this->getHeader('Content-Type');
     }
 
     /**

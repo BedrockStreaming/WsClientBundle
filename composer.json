@@ -15,7 +15,8 @@
     },
     "minimum-stability" : "dev",
     "require": {
-        "symfony/stopwatch" : "@stable"
+        "symfony/stopwatch" : "@stable",
+        "guzzlehttp/cache-subscriber": "0.1.*@dev"
     },
     "require-dev": {
         "atoum/atoum": "master-dev",

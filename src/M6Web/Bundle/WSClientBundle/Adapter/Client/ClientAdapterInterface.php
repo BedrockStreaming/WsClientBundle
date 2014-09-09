@@ -2,10 +2,14 @@
 
 namespace M6Web\Bundle\WSClientBundle\Adapter\Client;
 
-use M6Web\Bundle\WSClientBundle\Cache\CacheInterface;
-use M6Web\Bundle\WSClientBundle\Cache\CacheResetterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
+use M6Web\Bundle\WSClientBundle\Adapter\Request\GuzzleRequestAdapter;
+use M6Web\Bundle\WSClientBundle\Adapter\Response\GuzzleResponseAdapter;
+use M6Web\Bundle\WSClientBundle\Adapter\Response\ResponseAdapterInterface;
+use M6Web\Bundle\WSClientBundle\Adapter\Request\RequestAdapterInterface;
+use Doctrine\Common\Cache\Cache;
+use M6Web\Bundle\WSClientBundle\Cache\CacheInterface;
 
 /**
  * Client interface
@@ -13,40 +17,29 @@ use Symfony\Component\Stopwatch\Stopwatch;
 interface ClientAdapterInterface
 {
     /**
-     * Define client configuration
-     *
-     * @param array $config Client configuration
-     *
-     * @return ClientAdapterInterface
-     */
-    public function setConfig(array $config);
-
-    /**
-     * Define client base URL
-     *
-     * @param string $url Base URL
-     *
-     * @return ClientAdapterInterface
-     */
-    public function setBaseUrl($url);
-
-    /**
-     * Getclient base URL
-     *
-     * @return string
-     */
-    public function getBaseUrl();
-
-    /**
      * Define client cache
+     * For options, please see : https://github.com/guzzle/cache-subscriber#creating-a-cachesubscriber
      *
-     * @param int    $ttl               Cache expiration time
-     * @param mixed  $cacheService      Cache service
-     * @param string $cacheAdapterClass Class adapter between cache service and client
+     * @param integer        $defaultTtl
+     * @param boolean        $forceTtl
+     * @param CacheInterface $cacheService
+     * @param string         $cacheAdapterClass
+     * @param string         $cacheStorageClass
+     * @param array          $options
+     * @param array          $canCacheClass
+     * @param string         $cacheSubscriberClass
      *
-     * @return ClientAdapterInterface
+     * @return $this
      */
-    public function setCache($ttl, CacheInterface $cacheService = null, $cacheAdapterClass = '');
+    public function setCache(
+        $defaultTtl, $forceTtl,
+        CacheInterface $cacheService,
+        $cacheAdapterClass,
+        $cacheStorageClass,
+        array $options,
+        array $canCacheClass,
+        $cacheSubscriberClass
+    );
 
     /**
      * Define the query parameter to add to clear cache
@@ -118,10 +111,18 @@ interface ClientAdapterInterface
      *
      * @param string $method
      * @param string $uri
-     * @param array  $headers
-     * @param string $body
+     * @param array  $options
      *
      * @return RequestAdapterInterface
      */
-    public function createRequest($method = 'GET', $uri = null, $headers = null, $body = null);
+    public function createRequest($method = 'GET', $uri = null, $options = null);
+
+    /**
+     * Send a request
+     *
+     * @param RequestAdapterInterface $request
+     *
+     * @return ResponseAdapterInterface
+     */
+    public function send(RequestAdapterInterface $request);
 }

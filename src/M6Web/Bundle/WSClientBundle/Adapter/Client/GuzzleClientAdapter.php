@@ -2,11 +2,15 @@
 
 namespace M6Web\Bundle\WSClientBundle\Adapter\Client;
 
-use Guzzle\Http\ClientInterface;
+use GuzzleHttp\ClientInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
-use M6Web\Bundle\WSClientBundle\Cache\CacheInterface;
 use M6Web\Bundle\WSClientBundle\Adapter\Request\GuzzleRequestAdapter;
+use M6Web\Bundle\WSClientBundle\Adapter\Response\GuzzleResponseAdapter;
+use M6Web\Bundle\WSClientBundle\Adapter\Response\ResponseAdapterInterface;
+use M6Web\Bundle\WSClientBundle\Adapter\Request\RequestAdapterInterface;
+use M6Web\Bundle\WSClientBundle\Cache\CacheInterface;
+use Doctrine\Common\Cache\Cache;
 
 /**
  * Adapter form Guzzle webservices client
@@ -64,57 +68,9 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function setBaseUrl($url)
-    {
-        $this->client->setBaseUrl($url);
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBaseUrl()
-    {
-        return $this->client->getBaseUrl();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setConfig(array $config)
-    {
-        if (!isset($config['timeout'])) {
-            $config['timeout'] = 1; // Par défaut
-        }
-
-        $curlConfig = array(
-            CURLOPT_TIMEOUT => $config['timeout']
-        );
-
-        if (array_key_exists('followlocation', $config)) {
-            $curlConfig[CURLOPT_FOLLOWLOCATION] = (bool) $config['followlocation'];
-        }
-
-        if (array_key_exists('maxredirs', $config)) {
-            $curlConfig[CURLOPT_MAXREDIRS] = (int) $config['maxredirs'];
-        }
-
-        $this->client->setConfig(array('curl.options' => $curlConfig));
-
-        if (array_key_exists('exceptions', $config)) {
-            $this->throwExceptionOnHttpError = (bool) $config['exceptions'];
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher)
     {
-        $this->client->setEventDispatcher($eventDispatcher);
+        $this->eventDispatcher = $eventDispatcher;
 
         return $this;
     }
@@ -122,25 +78,48 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function setCache($ttl, CacheInterface $cacheService = null, $cacheAdapterClass = '', $cachePluginClass = '\Guzzle\Plugin\Cache\CachePlugin')
+    public function setCache(
+        $defaultTtl, $forceTtl,
+        CacheInterface $cacheService = null,
+        $cacheAdapterClass = '',
+        $cacheStorageClass = '',
+        array $options = [],
+        array $canCacheClass = null,
+        $cacheSubscriberClass = '\GuzzleHttp\Subscriber\Cache\CacheSubscriber'
+    )
     {
         $this->cache = $cacheService;
 
-        if (!class_exists($cacheAdapterClass)) {
-            throw new \Exception('Class "' . $cacheAdapterClass . '" doesn\'t exists.');
+        // Cache storage (Doctrine cache)
+        if (!class_exists($cacheAdapterClass) ||
+            !is_subclass_of($cacheAdapterClass, '\Doctrine\Common\Cache\Cache', true)) {
+            throw new \Exception(
+                'Class "' . $cacheAdapterClass . '" doesn\'t exists or doesn\'t implement Doctrine\Common\Cache\Cache.'
+            );
         }
 
-        if (!class_exists($cachePluginClass)) {
-            throw new \Exception('Class "' . $cachePluginClass . '" doesn\'t exists.');
+        // Cache storage (Doctrine cache)
+        if (!class_exists($cacheStorageClass) ||
+            !is_subclass_of($cacheStorageClass, '\GuzzleHttp\Subscriber\Cache\CacheStorageInterface', true)) {
+            throw new \Exception(
+                'Class "' . $cacheStorageClass . '" doesn\'t exists or doesn\'t implement GuzzleHttp\Subscriber\Cache\CacheStorageInterface.'
+            );
         }
 
-        $adapter = new $cacheAdapterClass($cacheService, $ttl);
-        $cache = new $cachePluginClass($adapter);
-        $this->client->addSubscriber($cache);
+        // Cache subscriber
+        if (!class_exists($cacheSubscriberClass) ||
+            !is_subclass_of($cacheSubscriberClass, '\GuzzleHttp\Event\SubscriberInterface', true)) {
+            throw new \Exception('Class "' . $cacheSubscriberClass . '" doesn\'t exists.');
+        }
+
+        $options['storage'] = new $cacheStorageClass(new $cacheAdapterClass($cacheService, $defaultTtl, $forceTtl));
+        $options['can_cache'] = $canCacheClass;
+
+        // Attach the cache to our client
+        $cacheSubscriberClass::attach($this->client, $options);
 
         return $this;
     }
-
 
     /**
      * {@inheritdoc}
@@ -150,6 +129,18 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         $this->cacheQueryParam = $param;
 
         return $this;
+    }
+
+    /**
+     * Set the CacheResetter
+     *
+     * @param CacheResetterInterface $cacheResetter
+     */
+    public function setCacheResetter($cacheResetter)
+    {
+        if (!is_null($this->cache)) {
+            $this->cache->setCacheResetter($cacheResetter);
+        }
     }
 
     /**
@@ -175,7 +166,7 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function createRequest($method = 'GET', $uri = null, $headers = null, $body = null)
+    public function createRequest($method = 'GET', $uri = null, $options = [])
     {
         if ($this->stopwatch) {
             $this->stopwatch->start(
@@ -183,20 +174,9 @@ class GuzzleClientAdapter implements ClientAdapterInterface
             );
         }
 
-        $options = array(
-            'query' => $this->getCacheQuery(),
-            'exceptions' => $this->throwExceptionOnHttpError
-        );
-
         $guzzleRequest = $this
             ->client
-            ->createRequest($method, $uri, $headers, $body, $options);
-
-        if (!is_null($this->requestTtl)) {
-            $guzzleRequest
-                ->getParams()
-                ->set('cache.override_ttl', $this->requestTtl);
-        }
+            ->createRequest($method, $uri, $options);
 
         if ($this->stopwatch) {
             $this->stopwatch->stop(
@@ -212,7 +192,9 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     public function get($uri, $headers = null)
     {
-        return $this->createRequest('GET', $uri, $headers);
+        return new GuzzleResponseAdapter(
+            $this->client->get($uri, ['headers' => $headers ? : []])
+        );
     }
 
     /**
@@ -220,7 +202,12 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     public function post($uri, $headers = null, $body = null)
     {
-        return $this->createRequest('POST', $uri, $headers, $body);
+        return new GuzzleResponseAdapter(
+            $this->client->post($uri, [
+                'headers' => $headers ? : [],
+                'body' => $body
+            ])
+        );
     }
 
     /**
@@ -245,5 +232,15 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         $this->requestTtl = $ttl;
 
         return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function send(RequestAdapterInterface $request)
+    {
+        $guzzleResponse = $this->client->send($request->getRequest());
+
+        return new GuzzleResponseAdapter($guzzleResponse);
     }
 }

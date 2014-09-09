@@ -64,20 +64,22 @@ class M6WebWSClientExtension extends Extension
 
         if (array_key_exists('cache', $config)) {
 
-            $cacheClass = '\Guzzle\Plugin\Cache\CachePlugin';
+            $storageCacheClass = 'GuzzleHttp\Subscriber\Cache\CacheStorage';
 
+            $canCacheClass = ['GuzzleHttp\Subscriber\Cache\Utils', 'canCacheRequest'];
             if ($config['cache']['force_request_ttl']) {
                 $definition->addMethodCall('setRequestTtl', array($config['cache']['ttl']));
-                $cacheClass = '\M6Web\Bundle\WSClientBundle\Cache\Guzzle\ForcedCachePlugin';
+                $canCacheClass = ['\M6Web\Bundle\WSClientBundle\Cache\Guzzle\ForcedCacheRequest', 'canCacheRequest'];
             }
 
             $definition->addMethodCall('setCache', array(
-                $config['cache']['ttl'],
+                $config['cache']['ttl'], $config['cache']['force_request_ttl'],
                 array_key_exists('service', $config['cache']) ? new Reference($config['cache']['service']) : null,
                 array_key_exists('adapter', $config['cache']) ? $config['cache']['adapter'] : '',
-                $cacheClass
+                array_key_exists('storage', $config['cache']) ? $config['cache']['storage'] : $storageCacheClass,
+                array_key_exists('options', $config['cache']) ? $config['cache']['options'] : [],
+                $canCacheClass
             ));
-
 
             if (array_key_exists('resetter', $config['cache'])) {
                 if (array_key_exists('service', $config['cache']['resetter'])) {
