@@ -63,13 +63,22 @@ class M6WebWSClientExtension extends Extension
         $definition->addMethodCall('setStopWatch', array(new Reference('debug.stopwatch', ContainerInterface::NULL_ON_INVALID_REFERENCE)));
 
         if (array_key_exists('cache', $config)) {
+
+            // Service, Adapter & storage
+            $cacheService = array_key_exists('service', $config['cache']) ? new Reference($config['cache']['service']) : null;
+            $adapterClass = array_key_exists('adapter', $config['cache']) ? $config['cache']['adapter'] : '';
+            $storageClass = array_key_exists('storage', $config['cache']) ? $config['cache']['storage'] : '';
+
+            // Subscriber
+            $subscriberClass = array_key_exists('subscriber', $config['cache']) ? $config['cache']['subscriber'] : '';
+
             // Force ttl : ForcedCacheRequest can cache class
             if ($config['cache']['force_request_ttl']) {
                 $definition->addMethodCall('setRequestTtl', array($config['cache']['ttl']));
                 $canCacheClass = ['\M6Web\Bundle\WSClientBundle\Cache\Guzzle\ForcedCacheRequest', 'canCacheRequest'];
             } else {
-                // Default value
-                $canCacheClass = null;
+                // Config or default value
+                $canCacheClass = array_key_exists('can_cache', $config['cache']) ? $config['cache']['can_cache'] : null;
             }
 
             // Add call to the client setCache
@@ -77,9 +86,10 @@ class M6WebWSClientExtension extends Extension
                 $config['cache']['ttl'],
                 $config['cache']['force_request_ttl'],
                 [
-                    'cache_service' => array_key_exists('service', $config['cache']) ? new Reference($config['cache']['service']) : null,
-                    'adapter_class' => array_key_exists('adapter', $config['cache']) ? $config['cache']['adapter'] : '',
-                    'storage_class' => array_key_exists('storage', $config['cache']) ? $config['cache']['storage'] : '',
+                    'cache_service' => $cacheService,
+                    'adapter_class' => $adapterClass,
+                    'storage_class' => $storageClass,
+                    'subscriber_class' => $subscriberClass,
                     'can_cache_callable' => $canCacheClass
                 ],
                 array_key_exists('options', $config['cache']) ? $config['cache']['options'] : []

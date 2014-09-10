@@ -48,6 +48,7 @@ class Configuration implements ConfigurationInterface
                                 ->scalarNode('service')->end()
                                 ->scalarNode('adapter')->end()
                                 ->scalarNode('storage')->end()
+                                ->scalarNode('subscriber')->end()
                                 ->arrayNode('can_cache')
                                     ->children()
                                         ->scalarNode('class')->end()
