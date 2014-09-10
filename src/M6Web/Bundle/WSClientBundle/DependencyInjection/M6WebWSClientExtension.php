@@ -63,24 +63,29 @@ class M6WebWSClientExtension extends Extension
         $definition->addMethodCall('setStopWatch', array(new Reference('debug.stopwatch', ContainerInterface::NULL_ON_INVALID_REFERENCE)));
 
         if (array_key_exists('cache', $config)) {
-
-            $storageCacheClass = 'GuzzleHttp\Subscriber\Cache\CacheStorage';
-
-            $canCacheClass = ['GuzzleHttp\Subscriber\Cache\Utils', 'canCacheRequest'];
+            // Force ttl : ForcedCacheRequest can cache class
             if ($config['cache']['force_request_ttl']) {
                 $definition->addMethodCall('setRequestTtl', array($config['cache']['ttl']));
                 $canCacheClass = ['\M6Web\Bundle\WSClientBundle\Cache\Guzzle\ForcedCacheRequest', 'canCacheRequest'];
+            } else {
+                // Default value
+                $canCacheClass = null;
             }
 
+            // Add call to the client setCache
             $definition->addMethodCall('setCache', array(
-                $config['cache']['ttl'], $config['cache']['force_request_ttl'],
-                array_key_exists('service', $config['cache']) ? new Reference($config['cache']['service']) : null,
-                array_key_exists('adapter', $config['cache']) ? $config['cache']['adapter'] : '',
-                array_key_exists('storage', $config['cache']) ? $config['cache']['storage'] : $storageCacheClass,
-                array_key_exists('options', $config['cache']) ? $config['cache']['options'] : [],
-                $canCacheClass
+                $config['cache']['ttl'],
+                $config['cache']['force_request_ttl'],
+                [
+                    'cache_service' => array_key_exists('service', $config['cache']) ? new Reference($config['cache']['service']) : null,
+                    'adapter_class' => array_key_exists('adapter', $config['cache']) ? $config['cache']['adapter'] : '',
+                    'storage_class' => array_key_exists('storage', $config['cache']) ? $config['cache']['storage'] : '',
+                    'can_cache_callable' => $canCacheClass
+                ],
+                array_key_exists('options', $config['cache']) ? $config['cache']['options'] : []
             ));
 
+            // Define resetter class and query param
             if (array_key_exists('resetter', $config['cache'])) {
                 if (array_key_exists('service', $config['cache']['resetter'])) {
                     $definition->addMethodCall('setCacheResetter', array(new Reference($config['cache']['resetter']['service'])));

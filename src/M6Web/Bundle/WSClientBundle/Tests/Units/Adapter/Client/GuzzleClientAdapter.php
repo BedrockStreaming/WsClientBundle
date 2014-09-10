@@ -123,16 +123,24 @@ class GuzzleClientAdapter extends test
                 ->variable($client->shouldResetCache())
                     ->isNull()
                 ->exception(function() use ($client, $cacheService) {
-                    $client->setCache($ttl=rand(), false, $cacheService, '\Toto');
+                    $client->setCache(
+                        $ttl=rand(), false,
+                        [
+                            'cache_service' => $cacheService,
+                            'adapter_class' => '\Toto'
+                        ]
+                    );
                 })
                     ->hasMessage('Class "\Toto" doesn\'t exists or doesn\'t implement Doctrine\Common\Cache\Cache.')
 
                 ->exception(function() use ($client, $cacheService) {
                     $client->setCache(
                         $ttl=5, false,
-                        $cacheService,
-                        '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',
-                        '\Toto'
+                        [
+                            'cache_service' => $cacheService,
+                            'adapter_class' => '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',
+                            'storage_class' => '\Toto'
+                        ]
                     );
                 })
                     ->hasMessage('Class "\Toto" doesn\'t exists or doesn\'t implement GuzzleHttp\Subscriber\Cache\CacheStorageInterface.')
@@ -140,9 +148,11 @@ class GuzzleClientAdapter extends test
             // Standard use case
             ->if($client->setCache(
                 $ttl=5, false,
-                $cacheService,
-                $cacheAdapterClass='\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',
-                $cacheStorageClass='\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheStorage'
+                [
+                    'cache_service' => $cacheService,
+                    'adapter_class' => '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheAdpater',
+                    'storage_class' => '\M6Web\Bundle\WSClientBundle\Tests\Units\Adapter\Client\CacheStorage'
+                ]
             ))
             ->then
                 ->mock($guzzleClient)

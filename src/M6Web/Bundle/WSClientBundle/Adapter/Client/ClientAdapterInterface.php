@@ -16,26 +16,21 @@ interface ClientAdapterInterface
      * Define client cache
      * For options, please see : https://github.com/guzzle/cache-subscriber#creating-a-cachesubscriber
      *
+     * $cache keys :
+     * - cache_service : low level cache service (must implement M6Web\Bundle\WSClientBundle\Cache\CacheInterface)
+     * - adapter_class : adapter class name (must implement \Doctrine\Common\Cache\Cache)
+     * - storage_class : storage class name (must implement \GuzzleHttp\Subscriber\Cache\CacheStorageInterface)
+     * - subscriber_class : subscriber class (must implement \GuzzleHttp\Subscriber\Cache\SubscriberInterface)
+     * - can_cache_callable : a callable to determine if a request can be cached
+     *
      * @param integer        $defaultTtl
      * @param boolean        $forceTtl
-     * @param CacheInterface $cacheService
-     * @param string         $cacheAdapterClass
-     * @param string         $cacheStorageClass
+     * @param array          $cache
      * @param array          $options
-     * @param array          $canCacheClass
-     * @param string         $cacheSubscriberClass
      *
      * @return $this
      */
-    public function setCache(
-        $defaultTtl, $forceTtl,
-        CacheInterface $cacheService,
-        $cacheAdapterClass,
-        $cacheStorageClass,
-        array $options,
-        array $canCacheClass,
-        $cacheSubscriberClass
-    );
+    public function setCache($defaultTtl, $forceTtl, array $cache, array $options);
 
     /**
      * Define the query parameter to add to clear cache
