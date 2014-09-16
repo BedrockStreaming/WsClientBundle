@@ -20,9 +20,6 @@ The main configuration key is `m6_ws_client`. Each subkey defines an instance of
     *  storage : (optional) storage class name (must implement \GuzzleHttp\Subscriber\Cache\CacheStorageInterface)
     *  subscriber : (optional) subscriber class (must implement \GuzzleHttp\Subscriber\Cache\SubscriberInterface)
     *  can_cache : (optional) a callable to determine if a request can be cached
-    * `resetter` (optional) :
-      * `service` : service responsible for cache clearing
-      * `query_param` : query parameter to add to the called url to clear server cache
 
 Here is an example of a simple configuration :
 
