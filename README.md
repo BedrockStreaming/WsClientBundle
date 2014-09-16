@@ -13,7 +13,7 @@ The main configuration key is `m6_ws_client`. Each subkey defines an instance of
   * `base_url` : the base domain of each url called with the service. If an absolute url is passed to the client, the base url is ignored.
   * `config` (optional) : additional parameters to configure the client, must be an array. See http://guzzle.readthedocs.org/en/latest/clients.html#request-options
   * `cache` (optional) :
-    * `ttl` : 86400s by default. Max ttl is force_request_ttl is FALSE, forced ttl is force_request_ttl is TRUE
+    * `ttl` : 86400s by default. Max ttl if force_request_ttl is FALSE, forced ttl if force_request_ttl is TRUE
     * `force_request_ttl` (optional) : FALSE by default. If TRUE, request TTL is the same than the cache TTL, otherwise the request TTL is calculated according to response headers.
     * `service` : low level cache service (must implement M6Web\Bundle\WSClientBundle\Cache\CacheInterface)
     * `adpater` : adapter class name (must implement \Doctrine\Common\Cache\Cache)
