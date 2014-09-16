@@ -81,14 +81,14 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         // Cache service
         $this->cache = empty($cache['cache_service']) ? null : $cache['cache_service'];
         if (!is_subclass_of($this->cache, '\M6Web\Bundle\WSClientBundle\Cache\CacheInterface')) {
-            throw new \Exception('Cache service must implement M6Web\Bundle\WSClientBundle\Cache\CacheInterface');
+            throw new Exception('Cache service must implement M6Web\Bundle\WSClientBundle\Cache\CacheInterface');
         }
 
         // Cache storage (Doctrine cache)
         $cacheAdapterClass = empty($cache['adapter_class']) ? '' : $cache['adapter_class'];
         if (!class_exists($cacheAdapterClass) ||
             !is_subclass_of($cacheAdapterClass, '\Doctrine\Common\Cache\Cache', true)) {
-            throw new \Exception(
+            throw new Exception(
                 'Class "' . $cacheAdapterClass . '" doesn\'t exists or doesn\'t implement Doctrine\Common\Cache\Cache.'
             );
         }
@@ -97,7 +97,7 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         $cacheStorageClass = empty($cache['storage_class']) ? 'GuzzleHttp\Subscriber\Cache\CacheStorage' : $cache['storage_class'];
         if (!class_exists($cacheStorageClass) ||
             !is_subclass_of($cacheStorageClass, '\GuzzleHttp\Subscriber\Cache\CacheStorageInterface', true)) {
-            throw new \Exception(
+            throw new Exception(
                 'Class "' . $cacheStorageClass . '" doesn\'t exists or doesn\'t implement GuzzleHttp\Subscriber\Cache\CacheStorageInterface.'
             );
         }
@@ -106,13 +106,13 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         $cacheSubscriberClass = empty($cache['subscriber_class']) ? 'GuzzleHttp\Subscriber\Cache\CacheSubscriber' : $cache['subscriber_class'];
         if (!class_exists($cacheSubscriberClass) ||
             !is_subclass_of($cacheSubscriberClass, '\GuzzleHttp\Event\SubscriberInterface', true)) {
-            throw new \Exception('Class "' . $cacheSubscriberClass . '" doesn\'t exists or doesn\'t implement GuzzleHttp\Event\SubscriberInterface.');
+            throw new Exception('Class "' . $cacheSubscriberClass . '" doesn\'t exists or doesn\'t implement GuzzleHttp\Event\SubscriberInterface.');
         }
 
         // Callable can cache
         $canCacheCallable = empty($cache['can_cache_callable']) ? ['GuzzleHttp\Subscriber\Cache\Utils', 'canCacheRequest'] : $cache['can_cache_callable'];
         if (!is_callable($canCacheCallable)) {
-            throw new \Exception('can_cache_callable must be a callabe');
+            throw new Exception('can_cache_callable must be a callabe');
         }
 
         $options['storage'] = new $cacheStorageClass(new $cacheAdapterClass($this->cache, $defaultTtl, $forceTtl));
