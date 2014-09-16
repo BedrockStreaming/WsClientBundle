@@ -120,8 +120,6 @@ class GuzzleClientAdapter extends test
 
             // without cache service
             ->then
-                ->variable($client->shouldResetCache())
-                    ->isNull()
                 ->exception(function() use ($client, $cacheService) {
                     $client->setCache(
                         $ttl=rand(), false,

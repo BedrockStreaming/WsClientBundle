@@ -31,11 +31,6 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     protected $cache;
 
     /**
-     * @var string
-     */
-    protected $cacheQueryParam = null;
-
-    /**
      * @var Stopwatch
      */
     protected $stopwatch = null;
@@ -122,40 +117,6 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         $cacheSubscriberClass::attach($this->client, $options);
 
         return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setCacheQueryParam($param)
-    {
-        $this->cacheQueryParam = $param;
-
-        return $this;
-    }
-
-    /**
-     * Set the CacheResetter
-     *
-     * @param CacheResetterInterface $cacheResetter
-     */
-    public function setCacheResetter($cacheResetter)
-    {
-        if (!is_null($this->cache)) {
-            $this->cache->setCacheResetter($cacheResetter);
-        }
-    }
-
-    /**
-     * @return {@inheritdoc}
-     */
-    public function shouldResetCache()
-    {
-        if (!is_null($this->cache)) {
-            return $this->cache->shouldResetCache();
-        }
-
-        return null;
     }
 
     /**

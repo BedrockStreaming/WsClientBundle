@@ -55,11 +55,4 @@ interface CacheInterface
      */
     public function ttl($key);
 
-    /**
-     * Permet de savoir si le client doit purger le cache
-     *
-     * @return boolean
-     */
-    public function shouldResetCache();
-
 }

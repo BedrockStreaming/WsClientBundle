@@ -33,22 +33,6 @@ interface ClientAdapterInterface
     public function setCache($defaultTtl, $forceTtl, array $cache, array $options);
 
     /**
-     * Define the query parameter to add to clear cache
-     *
-     * @param string $param Parameter
-     *
-     * @return ClientAdapterInterface
-     */
-    public function setCacheQueryParam($param);
-
-    /**
-     * Return TRUE if client has to clear the cache
-     *
-     * @return boolean
-     */
-    public function shouldResetCache();
-
-    /**
      * Define event dispatcher
      *
      * @param EventDispatcherInterface $eventDispatcher dispatcher

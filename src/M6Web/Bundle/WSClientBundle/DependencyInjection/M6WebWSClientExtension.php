@@ -94,16 +94,6 @@ class M6WebWSClientExtension extends Extension
                 ],
                 array_key_exists('options', $config['cache']) ? $config['cache']['options'] : []
             ));
-
-            // Define resetter class and query param
-            if (array_key_exists('resetter', $config['cache'])) {
-                if (array_key_exists('service', $config['cache']['resetter'])) {
-                    $definition->addMethodCall('setCacheResetter', array(new Reference($config['cache']['resetter']['service'])));
-                }
-                if (array_key_exists('query_param', $config['cache']['resetter'])) {
-                    $definition->addMethodCall('setCacheQueryParam', array($config['cache']['resetter']['query_param']));
-                }
-            }
         }
 
         $container->setDefinition($serviceId, $definition);
