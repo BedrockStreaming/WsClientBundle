@@ -2,7 +2,7 @@
 
 namespace M6Web\Bundle\WSClientBundle\Adapter\Request;
 
-use Guzzle\Http\Message\RequestInterface;
+use GuzzleHttp\Message\RequestInterface;
 use M6Web\Bundle\WSClientBundle\Adapter\Response\GuzzleResponseAdapter;
 
 /**
@@ -30,10 +30,8 @@ class GuzzleRequestAdapter implements RequestAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function send()
+    public function getRequest()
     {
-        $guzzleResponse = $this->request->send();
-
-        return new GuzzleResponseAdapter($guzzleResponse);
+        return $this->request;
     }
 }

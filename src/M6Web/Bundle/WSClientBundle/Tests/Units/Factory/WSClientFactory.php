@@ -90,20 +90,11 @@ class WSClientFactory extends test
                 ->isInstanceOf('\InvalidArgumentException')
         ;
 
-        $client = $factory->getClient($container, 'http://www.foobar.com');
-
-        $this
-            ->string($client->getBaseUrl())
-                ->isEqualTo('http://www.foobar.com')
-        ;
-
         $container->enterScope('request');
 
         $this
             ->object($client = $factory->getClient($container))
                 ->isInstanceOf('M6Web\Bundle\WSClientBundle\Adapter\Client\GuzzleClientAdapter')
-            ->string($client->getBaseUrl())
-                ->isEqualTo('http://localhost')
         ;
     }
 

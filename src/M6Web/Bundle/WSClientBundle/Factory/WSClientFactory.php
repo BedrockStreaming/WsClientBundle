@@ -31,9 +31,12 @@ class WSClientFactory
         switch (strtolower($clientAdapterClass)) {
             case '':
             case 'guzzle':
-                $guzzleClient = new \Guzzle\Http\Client();
+                $guzzleClient = new \GuzzleHttp\Client([
+                    'base_url' => $baseUrl,
+                    'defaults' => $config
+                ]);
+
                 $client = new Client\GuzzleClientAdapter($guzzleClient);
-                $client->setBaseUrl($baseUrl)->setConfig($config);
                 break;
             default:
                 if (!class_exists($clientAdapterClass)) {

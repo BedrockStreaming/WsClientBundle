@@ -8,10 +8,10 @@ namespace M6Web\Bundle\WSClientBundle\Adapter\Request;
 interface RequestAdapterInterface
 {
     /**
-     * Envoie la requête
+     * Get the request
      *
-     * @return M6Web\Bundle\WSClientBundle\Adapter\Response\ResponseAdpaterInterface
+     * @return GuzzleHttp\Message\RequestInterface
      */
-    public function send();
+    public function getRequest();
 
 }

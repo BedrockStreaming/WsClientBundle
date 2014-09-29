@@ -15,15 +15,15 @@
     },
     "minimum-stability" : "dev",
     "require": {
-        "symfony/stopwatch" : "@stable"
+        "symfony/stopwatch" : "@stable",
+        "guzzlehttp/cache-subscriber": "0.1.*@dev"
     },
     "require-dev": {
         "atoum/atoum": "master-dev",
         "atoum/atoum-bundle": "master-dev",
-        "guzzle/guzzle" : "@stable"
+        "guzzlehttp/guzzle" : "@stable"
     },
     "suggest": {
-        "guzzle/guzzle" : "> 3.7",
         "m6web/redis-bundle": "@stable"
     }
 }
