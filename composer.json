@@ -13,7 +13,6 @@
     "autoload": {
         "psr-0": { "": "src/" }
     },
-    "minimum-stability" : "dev",
     "require": {
         "symfony/stopwatch" : "@stable",
         "guzzlehttp/cache-subscriber": "@stable"
