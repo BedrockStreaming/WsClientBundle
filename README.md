@@ -1,4 +1,4 @@
-# Bundle WSClient
+# Bundle WSClient [![Build Status](https://travis-ci.org/M6Web/WsClientBundle.svg?branch=master)](https://travis-ci.org/M6Web/WsClientBundle)
 
 This bundle give a simple webservices client to call external urls. By default, it is based on Guzzle but you can plug any other client library.
 
