@@ -27,7 +27,7 @@ Here is an example of a simple configuration :
 m6_ws_client:
     clients:
         default:
-            base_url: 'ws-usine.m6web.fr'
+            base_url: 'toto.m6web.fr'
             config:
                 timeout: 10
                 allow_redirects: {max: 5, strict: false, referer: true}
@@ -44,7 +44,7 @@ For instance, in a controller :
 
 ```php
 $wsclient = $this->get('m6_ws_client');
-$request = $wsclient->get('http://ws-usine.m6web.fr/parse/?content=my_content');
+$request = $wsclient->get('http://toto.m6web.fr/parse/?content=my_content');
 $response = $request->send();
 
 echo $response->getBody();
