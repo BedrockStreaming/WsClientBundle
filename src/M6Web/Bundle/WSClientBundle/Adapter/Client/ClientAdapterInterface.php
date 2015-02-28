@@ -51,6 +51,28 @@ interface ClientAdapterInterface
     public function setStopWatch(Stopwatch $stopwatch);
 
     /**
+     * Create PUT request
+     *
+     * @param string $uri     Uri
+     * @param array  $headers Headers
+     * @param string $body    Body
+     *
+     * @return mixed
+     */
+    public function put($uri, $headers, $body);
+
+    /**
+     * Create PATCH request
+     *
+     * @param string $uri     Uri
+     * @param array  $headers Headers
+     * @param string $body    Body
+     *
+     * @return mixed
+     */
+    public function patch($uri, $headers, $body);
+
+    /**
      * Crete GET request
      *
      * @param mixed $uri     Uri
