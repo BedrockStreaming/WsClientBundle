@@ -175,20 +175,6 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     }
 
     /**
-     * Gets the query for cache clearing of the request if necessary
-     *
-     * @return array
-     */
-    protected function getCacheQuery()
-    {
-        if ($this->shouldResetCache() && $this->cacheQueryParam) {
-            return array($this->cacheQueryParam => 1);
-        }
-
-        return array();
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function setRequestTtl($ttl)
