@@ -1,0 +1,8 @@
+m6_ws_client:
+    clients:
+        default:
+            base_url: 'toto.m6web.fr'
+            config:
+                timeout: 10
+                allow_redirects: {max: 5, strict: false, referer: true}
+                exceptions: false
