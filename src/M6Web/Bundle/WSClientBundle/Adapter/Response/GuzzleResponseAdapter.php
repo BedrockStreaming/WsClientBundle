@@ -2,7 +2,7 @@
 
 namespace M6Web\Bundle\WSClientBundle\Adapter\Response;
 
-use GuzzleHttp\Message\Response;
+use GuzzleHttp\Message\ResponseInterface;
 
 /**
  * Adpater pour une réponse Guzzle
@@ -21,7 +21,7 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
      *
      * @return \M6Web\Bundle\WSClientBundle\Adapter\Response\GuzzleResponseAdapter
      */
-    public function __construct(Response $guzzleResponse)
+    public function __construct(ResponseInterface $guzzleResponse)
     {
         $this->response = $guzzleResponse;
 
