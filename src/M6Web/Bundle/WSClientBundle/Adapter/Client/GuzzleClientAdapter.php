@@ -200,6 +200,18 @@ class GuzzleClientAdapter implements ClientAdapterInterface
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function delete($uri, $headers = null)
+    {
+        return new GuzzleResponseAdapter(
+            $this->client->delete($uri, [
+                'headers' => $headers ? : []
+            ])
+        );
+    }
+
 
     /**
      * {@inheritdoc}
