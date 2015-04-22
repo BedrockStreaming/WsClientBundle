@@ -87,7 +87,9 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
     public function getHeaderValue($header, $glue = '')
     {
         if ($header = $this->response->getHeader($header, true)) {
-            return implode($glue, $header);
+            if (is_array($header)) {
+                return implode($glue, $header);
+            }
         }
 
         return $header;
