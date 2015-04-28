@@ -44,8 +44,7 @@ For instance, in a controller :
 
 ```php
 $wsclient = $this->get('m6_ws_client');
-$request = $wsclient->get('http://toto.m6web.fr/parse/?content=my_content');
-$response = $request->send();
+$response = $wsclient->get('http://toto.m6web.fr/parse/?content=my_content');
 
 echo $response->getBody();
 ```
