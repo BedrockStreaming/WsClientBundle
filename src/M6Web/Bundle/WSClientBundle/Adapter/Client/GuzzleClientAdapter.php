@@ -217,6 +217,30 @@ class GuzzleClientAdapter implements ClientAdapterInterface
     /**
      * {@inheritdoc}
      */
+    public function head($uri, $headers = null)
+    {
+        $request = $this->createRequest('HEAD', $uri, [
+            'headers' => $headers ? : []
+        ]);
+
+        return $this->send($request);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function options($uri, $headers = null)
+    {
+        $request = $this->createRequest('OPTIONS', $uri, [
+            'headers' => $headers ? : []
+        ]);
+
+        return $this->send($request);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setRequestTtl($ttl)
     {
         $this->requestTtl = $ttl;
