@@ -25,6 +25,9 @@
         "m6web/symfony2-coding-standard": "~2.0",
         "symfony/symfony"   : "~2.3"
     },
+    "config": {
+        "bin-dir": "bin"
+    },
     "suggest": {
         "m6web/redis-bundle": "@stable"
     }
