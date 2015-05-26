@@ -156,9 +156,11 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     public function get($uri, $headers = null)
     {
-        return new GuzzleResponseAdapter(
-            $this->client->get($uri, ['headers' => $headers ? : []])
-        );
+        $request = $this->createRequest('GET', $uri, [
+            'headers' => $headers ? : []
+        ]);
+
+        return $this->send($request);
     }
 
     /**
@@ -166,12 +168,12 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     public function post($uri, $headers = null, $body = null)
     {
-        return new GuzzleResponseAdapter(
-            $this->client->post($uri, [
-                'headers' => $headers ? : [],
-                'body' => $body
-            ])
-        );
+        $request = $this->createRequest('POST', $uri, [
+            'headers' => $headers ? : [],
+            'body' => $body
+        ]);
+
+        return $this->send($request);
     }
 
     /**
@@ -179,12 +181,12 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     public function put($uri, $headers, $body)
     {
-        return new GuzzleResponseAdapter(
-            $this->client->put($uri, [
-                'headers' => $headers ? : [],
-                'body' => $body
-            ])
-        );
+        $request = $this->createRequest('PUT', $uri, [
+            'headers' => $headers ? : [],
+            'body' => $body
+        ]);
+
+        return $this->send($request);
     }
 
     /**
@@ -192,12 +194,12 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     public function patch($uri, $headers, $body)
     {
-        return new GuzzleResponseAdapter(
-            $this->client->patch($uri, [
-                'headers' => $headers ? : [],
-                'body' => $body
-            ])
-        );
+        $request = $this->createRequest('PATCH', $uri, [
+            'headers' => $headers ? : [],
+            'body' => $body
+        ]);
+
+        return $this->send($request);
     }
 
     /**
@@ -205,13 +207,12 @@ class GuzzleClientAdapter implements ClientAdapterInterface
      */
     public function delete($uri, $headers = null)
     {
-        return new GuzzleResponseAdapter(
-            $this->client->delete($uri, [
-                'headers' => $headers ? : []
-            ])
-        );
-    }
+        $request = $this->createRequest('DELETE', $uri, [
+            'headers' => $headers ? : []
+        ]);
 
+        return $this->send($request);
+    }
 
     /**
      * {@inheritdoc}
