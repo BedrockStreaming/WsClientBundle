@@ -95,4 +95,22 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
         return $header;
     }
 
+    /**
+     *  Magic method to the Response adapter
+     *
+     * @param string $name      method name
+     * @param array  $arguments method arguments
+     *
+     * @throws Exception
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        if (!method_exists($this->response, $name)) {
+            throw new BadMethodCallException("Method ".$name." doesn't exist in Guzzle Response");
+        }
+
+        return call_user_func_array(array($this->response, $name), $arguments);
+    }
+
 }
