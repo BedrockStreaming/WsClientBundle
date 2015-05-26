@@ -35,7 +35,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('base_url')->end()
                         ->variableNode('config')
                             ->validate()
-                                ->ifTrue(function($v){
+                                ->ifTrue(function ($v) {
                                     return !is_array($v);
                                 })
                                 ->thenInvalid('Invalid value %s for client config, it must be an array.')
