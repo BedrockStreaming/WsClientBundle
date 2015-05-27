@@ -53,5 +53,5 @@ echo $response->getBody();
 
 ```shell
 composer install --dev
-./vendor/bin/atoum
+./bin/atoum
 ```
