@@ -107,7 +107,7 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
     public function __call($name, $arguments)
     {
         if (!method_exists($this->response, $name)) {
-            throw new BadMethodCallException("Method ".$name." doesn't exist in Guzzle Response");
+            throw new \BadMethodCallException("Method ".$name." doesn't exist in ".get_class($this->response));
         }
 
         return call_user_func_array(array($this->response, $name), $arguments);
