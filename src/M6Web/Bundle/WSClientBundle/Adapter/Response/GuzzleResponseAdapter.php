@@ -39,14 +39,6 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getStatusCode()
-    {
-        return $this->response->getStatusCode();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function isContentType($type)
     {
         return (strtolower($this->getContentType()) == strtolower($type));
@@ -58,22 +50,6 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
     public function getContentType()
     {
         return $this->getHeader('Content-Type');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHeader($header)
-    {
-        return $this->response->getHeader($header);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHeaders()
-    {
-        return $this->response->getHeaders();
     }
 
     /**
@@ -93,6 +69,24 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
         }
 
         return $header;
+    }
+
+    /**
+     *  Magic method to the Response adapter
+     *
+     * @param string $name      method name
+     * @param array  $arguments method arguments
+     *
+     * @throws Exception
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        if (!method_exists($this->response, $name)) {
+            throw new \BadMethodCallException("Method ".$name." doesn't exist in ".get_class($this->response));
+        }
+
+        return call_user_func_array(array($this->response, $name), $arguments);
     }
 
 }

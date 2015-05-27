@@ -15,13 +15,6 @@ interface ResponseAdapterInterface
     public function getBody();
 
     /**
-     * Return the response status
-     *
-     * @return int
-     */
-    public function getStatusCode();
-
-    /**
      * Return content type
      *
      * @param string $type Content type to check against
@@ -36,22 +29,6 @@ interface ResponseAdapterInterface
      * @return string
      */
     public function getContentType();
-
-    /**
-     * Return a specific header response
-     *
-     * @param string $header Header name
-     *
-     * @return string
-     */
-    public function getHeader($header);
-
-    /**
-     * Return headers response
-     *
-     * @return array
-     */
-    public function getHeaders();
 
     /**
      * return a scalar value of \Guzzle\Http\Message\Header type
