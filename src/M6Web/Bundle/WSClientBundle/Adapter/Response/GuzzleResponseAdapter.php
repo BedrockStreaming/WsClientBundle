@@ -39,14 +39,6 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function getStatusCode()
-    {
-        return $this->response->getStatusCode();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function isContentType($type)
     {
         return (strtolower($this->getContentType()) == strtolower($type));
@@ -58,22 +50,6 @@ class GuzzleResponseAdapter implements ResponseAdapterInterface
     public function getContentType()
     {
         return $this->getHeader('Content-Type');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHeader($header)
-    {
-        return $this->response->getHeader($header);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHeaders()
-    {
-        return $this->response->getHeaders();
     }
 
     /**
