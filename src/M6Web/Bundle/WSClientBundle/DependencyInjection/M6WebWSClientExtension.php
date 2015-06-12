@@ -50,8 +50,7 @@ class M6WebWSClientExtension extends Extension
     {
         $serviceId  = 'm6_ws_client' . ($alias != 'default' ? '_' . $alias : '');
         $definition = new Definition('M6Web\Bundle\WSClientBundle\Adapter\WSClientAdapterInterface');
-        $definition->setFactoryService('m6_ws_client.factory');
-        $definition->setFactoryMethod('getClient');
+        $definition->setFactory([new Reference('m6_ws_client.factory'), 'getClient']);
         $definition->setScope(ContainerInterface::SCOPE_CONTAINER);
 
         $definition->addArgument(new Reference('service_container'));
